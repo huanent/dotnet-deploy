@@ -8,7 +8,7 @@ internal class Project
     public string Folder { get; init; }
     public string AssemblyName { get; init; }
 
-    public readonly DeployOptions options = new();
+    private readonly DeployOptions options = new();
 
     public DeployOptions Options => options;
 

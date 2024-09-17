@@ -1,5 +1,6 @@
 ﻿using System.CommandLine;
-using DotnetDeploy.Commands;
+using DotnetDeploy.Projects;
+using DotnetDeploy.Services;
 
 var serviceCommand = new CliCommand("service", "Manager project remote host service");
 serviceCommand.Subcommands.Add(new ServiceInstallCommand());
