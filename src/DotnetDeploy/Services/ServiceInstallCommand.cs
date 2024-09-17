@@ -45,5 +45,6 @@ public class ServiceInstallCommand : BaseCommand
         await enableProcess.WaitForExitAsync(token);
         var startProcess = await server.SshClient.ExecuteAsync($"systemctl start {serviceName}", cancellationToken: token);
         await startProcess.WaitForExitAsync(token);
+        Console.WriteLine($"Service {project.AssemblyName} installed!");
     }
 }

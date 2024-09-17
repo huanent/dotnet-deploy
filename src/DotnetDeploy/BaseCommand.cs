@@ -23,7 +23,7 @@ public abstract class BaseCommand : CliCommand
 
         Options.Add(new CliOption<string?>(Constants.PROJECT_PARAMETER)
         {
-            Description = "Project path"
+            Description = "Project path",
         });
 
         SetAction(ExecuteAsync);

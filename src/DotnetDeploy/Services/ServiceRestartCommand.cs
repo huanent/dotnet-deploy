@@ -20,5 +20,6 @@ public class ServiceRestartCommand : BaseCommand
         var serviceName = $"{project.AssemblyName}.service";
         var restartProcess = await server.SshClient.ExecuteAsync($"systemctl restart {serviceName}", cancellationToken: token);
         await restartProcess.WaitForExitAsync(token);
+        Console.WriteLine($"Service {project.AssemblyName} restarted!");
     }
 }

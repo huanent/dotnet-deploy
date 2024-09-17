@@ -50,7 +50,9 @@ internal class Server : IDisposable
         };
 
         SshClient = new SshClient(sshSettings);
+        Console.WriteLine($"Connecting server {host} with {username}");
         await SshClient.ConnectAsync(token);
+         Console.WriteLine($"Server {host} connected!");
         SftpClient = await SshClient.OpenSftpClientAsync(token);
     }
 

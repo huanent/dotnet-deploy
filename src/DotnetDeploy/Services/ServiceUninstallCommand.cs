@@ -24,5 +24,6 @@ public class ServiceUninstallCommand : BaseCommand
         await disableProcess.WaitForExitAsync(token);
         var remoteServiceFile = Path.Combine("/etc/systemd/system", serviceName);
         await server.SftpClient.DeleteFileAsync(remoteServiceFile, token);
+        Console.WriteLine($"Service {project.AssemblyName} uninstalled!");
     }
 }
