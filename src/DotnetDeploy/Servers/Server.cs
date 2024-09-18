@@ -52,8 +52,29 @@ internal class Server : IDisposable
         SshClient = new SshClient(sshSettings);
         Console.WriteLine($"Connecting server {host} with {username}");
         await SshClient.ConnectAsync(token);
-         Console.WriteLine($"Server {host} connected!");
+        Console.WriteLine($"Server {host} connected!");
         SftpClient = await SshClient.OpenSftpClientAsync(token);
+    }
+
+    public async Task UploadFileAsync(string localPath, string remotePath, CancellationToken token)
+    {
+        var folder = Path.GetDirectoryName(remotePath);
+        await SftpClient.CreateDirectoryAsync(folder!, true, cancellationToken: token);
+        await SftpClient.DeleteFileAsync(remotePath, token);
+        await SftpClient.UploadFileAsync(localPath, remotePath,token);
+    }
+
+    public async Task<string> ExecuteAsync(string command, CancellationToken token)
+    {
+        var process = await SshClient.ExecuteAsync(command, cancellationToken: token);
+        var (output, error) = await process.ReadToEndAsStringAsync();
+
+        if (process.ExitCode != 0)
+        {
+            throw new Exception(error);
+        }
+
+        return output;
     }
 
     public void Dispose()

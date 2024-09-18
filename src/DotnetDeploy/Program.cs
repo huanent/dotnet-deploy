@@ -6,6 +6,7 @@ var serviceCommand = new CliCommand("service", "Manager project remote host serv
 serviceCommand.Subcommands.Add(new ServiceInstallCommand());
 serviceCommand.Subcommands.Add(new ServiceUninstallCommand());
 serviceCommand.Subcommands.Add(new ServiceRestartCommand());
+serviceCommand.Subcommands.Add(new ServiceStatusCommand());
 
 var rootCommand = new CliRootCommand("A dotnet application deploy tools")
 {

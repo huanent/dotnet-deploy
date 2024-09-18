@@ -18,10 +18,8 @@ public class ServiceUninstallCommand : BaseCommand
         var server = new Server(parseResult, project.Options);
         await server.ConnectAsync(token);
         var serviceName = $"{project.AssemblyName}.service";
-        var stopProcess = await server.SshClient.ExecuteAsync($"systemctl stop {serviceName}", cancellationToken: token);
-        await stopProcess.WaitForExitAsync(token);
-        var disableProcess = await server.SshClient.ExecuteAsync($"systemctl disable {serviceName}", cancellationToken: token);
-        await disableProcess.WaitForExitAsync(token);
+        await server.ExecuteAsync($"systemctl stop {serviceName}", token);
+        await server.ExecuteAsync($"systemctl disable {serviceName}", token);
         var remoteServiceFile = Path.Combine("/etc/systemd/system", serviceName);
         await server.SftpClient.DeleteFileAsync(remoteServiceFile, token);
         Console.WriteLine($"Service {project.AssemblyName} uninstalled!");

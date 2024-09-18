@@ -4,10 +4,10 @@ using DotnetDeploy.Servers;
 
 namespace DotnetDeploy.Services;
 
-public class ServiceRestartCommand : BaseCommand
+public class ServiceStatusCommand : BaseCommand
 {
-    public ServiceRestartCommand()
-        : base("restart", "Restart project service on remote host")
+    public ServiceStatusCommand()
+        : base("status", "Get project service status")
     {
     }
 
@@ -18,7 +18,7 @@ public class ServiceRestartCommand : BaseCommand
         var server = new Server(parseResult, project.Options);
         await server.ConnectAsync(token);
         var serviceName = $"{project.AssemblyName}.service";
-        await server.ExecuteAsync($"systemctl restart {serviceName}", token);
-        Console.WriteLine($"Service {project.AssemblyName} restarted!");
+        var output = await server.ExecuteAsync($"systemctl status {serviceName} --no-pager -l", token);
+        Console.WriteLine(output);
     }
 }

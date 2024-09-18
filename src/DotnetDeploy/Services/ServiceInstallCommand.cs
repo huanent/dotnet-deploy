@@ -40,11 +40,9 @@ public class ServiceInstallCommand : BaseCommand
         WantedBy=multi-user.target
         """);
 
-        await server.SftpClient.UploadFileAsync(servicePath, remoteServiceFile, true, cancellationToken: token);
-        var enableProcess = await server.SshClient.ExecuteAsync($"systemctl enable {remoteServiceFile}", cancellationToken: token);
-        await enableProcess.WaitForExitAsync(token);
-        var startProcess = await server.SshClient.ExecuteAsync($"systemctl start {serviceName}", cancellationToken: token);
-        await startProcess.WaitForExitAsync(token);
+        await server.UploadFileAsync(servicePath, remoteServiceFile, token);
+        await server.ExecuteAsync($"systemctl enable {remoteServiceFile}", token);
+        await server.ExecuteAsync($"systemctl start {serviceName}", token);
         Console.WriteLine($"Service {project.AssemblyName} installed!");
     }
 }

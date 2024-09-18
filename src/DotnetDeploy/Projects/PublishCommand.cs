@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.Formats.Tar;
 using System.IO.Compression;
 using DotnetDeploy.Servers;
 
@@ -28,25 +29,25 @@ public class PublishCommand : BaseCommand
             token
         );
 
-        var zipPath = Path.Combine(binFolder, "publish.zip");
-        if (File.Exists(zipPath)) File.Delete(zipPath);
-        ZipFile.CreateFromDirectory(publishPath, zipPath);
-        Directory.Delete(publishPath, true);
+        var archivePath = Path.Combine(binFolder, "publish.tar.gz");
+        if (File.Exists(archivePath)) File.Delete(archivePath);
+
+        using (var archiveStream = File.OpenWrite(archivePath))
+        {
+            using var gzipStream = new GZipStream(archiveStream, CompressionLevel.SmallestSize);
+            await TarFile.CreateFromDirectoryAsync(publishPath, gzipStream, false, token);
+            Directory.Delete(publishPath, true);
+        };
+
         Console.WriteLine($"Project {project.AssemblyName} published!");
 
         var remoteRoot = "/var/dotnet-apps";
         var remoteAppFolder = Path.Combine(remoteRoot, project.AssemblyName);
-        var remoteZipFile = Path.Combine(remoteRoot, $"{project.AssemblyName}.zip");
-
-        if ((await server.SftpClient.GetAttributesAsync(remoteRoot, cancellationToken: token)) == null)
-        {
-            await server.SftpClient.CreateDirectoryAsync(remoteRoot, cancellationToken: token);
-        }
-
+        var remoteArchiveFile = Path.Combine(remoteRoot, $"{project.AssemblyName}.tar.gz");
         Console.WriteLine($"Uploading publish files to server");
-        await server.SftpClient.UploadFileAsync(zipPath, remoteZipFile, true, cancellationToken: token);
-        var process = await server.SshClient.ExecuteAsync($"unzip -o -d {remoteAppFolder} {remoteZipFile}", cancellationToken: token);
-        await process.WaitForExitAsync(token);
-         Console.WriteLine($"Publish files uploaded!");
+        await server.UploadFileAsync(archivePath, remoteArchiveFile, token);
+        await server.SftpClient.CreateDirectoryAsync(remoteAppFolder, true, cancellationToken: token);
+        await server.ExecuteAsync($"tar --overwrite -xzvf {remoteArchiveFile} -C {remoteAppFolder}", token);
+        Console.WriteLine($"Publish files uploaded!");
     }
 }
