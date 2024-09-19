@@ -13,12 +13,17 @@ public abstract class BaseCommand : CliCommand
 
         Options.Add(new CliOption<string?>(Constants.USERNAME_PARAMETER)
         {
-            Description = "Host username"
+            Description = "SSH username"
         });
 
         Options.Add(new CliOption<string?>(Constants.PASSWORD_PARAMETER)
         {
-            Description = "Host password"
+            Description = "SSH password"
+        });
+
+        Options.Add(new CliOption<string?>(Constants.PRIVATE_KEY_PARAMETER)
+        {
+            Description = "SSH private key"
         });
 
         Options.Add(new CliOption<string?>(Constants.PROJECT_PARAMETER)

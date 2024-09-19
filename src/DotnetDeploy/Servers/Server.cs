@@ -9,6 +9,7 @@ internal class Server : IDisposable
     private readonly string? host;
     internal readonly string? username;
     internal string? password;
+    internal string? privateKey;
     internal SshClient? SshClient { get; set; }
     internal SftpClient? SftpClient { get; set; }
 
@@ -36,16 +37,33 @@ internal class Server : IDisposable
         {
             password = options.Password;
         }
+
+        privateKey = parseResult.GetValue<string>(Constants.PRIVATE_KEY_PARAMETER);
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            privateKey = options.PrivateKey;
+        }
     }
 
     internal async Task ConnectAsync(CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(host)) throw new ArgumentNullException(nameof(host));
 
+        var credentials = new List<Credential>();
+
+        if (!string.IsNullOrWhiteSpace(privateKey))
+        {
+            credentials.Add(new PrivateKeyCredential(privateKey, password));
+        }
+        else if (!string.IsNullOrWhiteSpace(password))
+        {
+            credentials.Add(new PasswordCredential(password));
+        }
+
         var sshSettings = new SshClientSettings(host)
         {
             UserName = username!,
-            Credentials = [new PasswordCredential(password)],
+            Credentials = credentials,
             AutoConnect = false
         };
 
@@ -59,9 +77,21 @@ internal class Server : IDisposable
     public async Task UploadFileAsync(string localPath, string remotePath, CancellationToken token)
     {
         var folder = Path.GetDirectoryName(remotePath);
-        await SftpClient.CreateDirectoryAsync(folder!, true, cancellationToken: token);
-        await SftpClient.DeleteFileAsync(remotePath, token);
-        await SftpClient.UploadFileAsync(localPath, remotePath,token);
+        var folderExist = await ExistFolderAsync(folder, token);
+        
+        if (!folderExist)
+        {
+            await SftpClient.CreateDirectoryAsync(folder!, true, cancellationToken: token);
+        }
+
+        var fileExist = await ExistFileAsync(remotePath, token);
+
+        if (fileExist)
+        {
+            await SftpClient.DeleteFileAsync(remotePath, token);
+        }
+
+        await SftpClient.UploadFileAsync(localPath, remotePath, token);
     }
 
     public async Task<string> ExecuteAsync(string command, CancellationToken token)
@@ -75,6 +105,32 @@ internal class Server : IDisposable
         }
 
         return output;
+    }
+
+    public async Task<bool> ExistFileAsync(string path, CancellationToken token)
+    {
+        try
+        {
+            await ExecuteAsync($"test -f {path}", token);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> ExistFolderAsync(string path, CancellationToken token)
+    {
+        try
+        {
+            await ExecuteAsync($"test -d {path}", token);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public void Dispose()
