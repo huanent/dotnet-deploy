@@ -8,7 +8,6 @@
     <PackageId>dotnet-deploy</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>deploy</ToolCommandName>
-    <PackageOutputPath>./nupkg</PackageOutputPath>
     <Version>0.0.5</Version>
   </PropertyGroup>
 

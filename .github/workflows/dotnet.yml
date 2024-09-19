@@ -21,6 +21,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Pack
-      run: dotnet pack --no-restore ./src/DotnetDeploy
+      run: dotnet pack --no-restore ./src/DotnetDeploy --output ./output
     - name: Publish
-      run: dotnet nuget push ./src/DotnetDeploy/nupkg/*.nupkg --api-key ${{ secrets.nuget_key }} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push .output/*.nupkg --api-key ${{ secrets.nuget_key }} --source https://api.nuget.org/v3/index.json
