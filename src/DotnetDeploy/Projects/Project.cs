@@ -2,35 +2,46 @@ using Microsoft.Extensions.Configuration;
 
 namespace DotnetDeploy.Projects;
 
-internal class Project
+internal class Project : IDisposable
 {
-    public string CsprojFile { get; init; }
-    public string Folder { get; init; }
-    public string AssemblyName { get; init; }
-
     private readonly DeployOptions options = new();
+    private string? assemblyName;
 
-    public DeployOptions Options => options;
+    internal DeployOptions Options => options;
+    internal string CsprojFile { get; init; }
+    internal string RootDirectory { get; init; }
+    internal string WorkDirectory { get; init; }
+    internal string AssemblyName => assemblyName ?? throw new Exception("Project not initialized");
 
-    public Project(string? path)
+    internal Project(string? path)
     {
         CsprojFile = DiscoverProjectFile(path);
-        Folder = Path.GetDirectoryName(CsprojFile)!;
+        RootDirectory = Path.GetDirectoryName(CsprojFile)!;
+        WorkDirectory = Path.Combine(RootDirectory, "bin", "__dotnet_deploy_temp__");
+        if (!Directory.Exists(WorkDirectory)) Directory.CreateDirectory(WorkDirectory);
+    }
 
-        AssemblyName = ProcessHelper.RunCommandAsync(
-           "dotnet",
-           ["msbuild", CsprojFile, "-getProperty:AssemblyName"],
-           default
-       ).Result;
-
-        var userSecretId = ProcessHelper.RunCommandAsync(
+    internal async Task InitializeAsync(CancellationToken token)
+    {
+        assemblyName = ProcessHelper.RunCommandAsync(
             "dotnet",
-            ["msbuild", CsprojFile, "-getProperty:UserSecretsId"],
-            default
+            ["msbuild", CsprojFile, "-getProperty:AssemblyName"],
+            token
         ).Result;
 
+        await BindOptionsAsync(token);
+    }
+
+    private async Task BindOptionsAsync(CancellationToken token)
+    {
+        var userSecretId = await ProcessHelper.RunCommandAsync(
+            "dotnet",
+            ["msbuild", CsprojFile, "-getProperty:UserSecretsId"],
+            token
+        );
+
         var builder = new ConfigurationBuilder();
-        builder.SetBasePath(Folder);
+        builder.SetBasePath(RootDirectory);
         builder.AddJsonFile("appsettings.json", true, true);
         if (!string.IsNullOrWhiteSpace(userSecretId)) builder.AddUserSecrets(userSecretId, true);
         var configurationRoot = builder.Build();
@@ -51,9 +62,9 @@ internal class Project
             return path;
         }
 
-        if (Directory.Exists(path))
+        if (System.IO.Directory.Exists(path))
         {
-            var files = Directory.GetFiles(path, "*.csproj", SearchOption.AllDirectories);
+            var files = System.IO.Directory.GetFiles(path, "*.csproj", SearchOption.AllDirectories);
 
             if (files.Length == 0)
             {
@@ -72,4 +83,11 @@ internal class Project
         throw new Exception("csproj file not found");
     }
 
+    public void Dispose()
+    {
+        if (Directory.Exists(WorkDirectory))
+        {
+            Directory.Delete(WorkDirectory, true);
+        }
+    }
 }

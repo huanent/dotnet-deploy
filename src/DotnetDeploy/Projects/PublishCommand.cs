@@ -15,39 +15,58 @@ public class PublishCommand : BaseCommand
     protected override async Task ExecuteAsync(ParseResult parseResult, CancellationToken token)
     {
         var projectPath = parseResult.GetValue<string>(Constants.PROJECT_PARAMETER);
-        var project = new Project(projectPath);
-        var server = new Server(parseResult, project.Options);
-        await server.ConnectAsync(token);
-        var binFolder = Path.Combine(project.Folder, "bin");
-        var publishPath = Path.Combine(binFolder, "__publish__");
+        using var project = new Project(projectPath);
+        await project.InitializeAsync(token);
+        using var server = new Server(parseResult, project.Options);
+        await server.InitializeAsync(token);
+        string archivePath = await Publish(project, token);
+        await UploadAsync(project.AssemblyName, server, archivePath, token);
+
+        try
+        {
+            await server.SshClient.ExecuteAsync($"systemctl restart {project.AssemblyName}");
+            Console.WriteLine($"Service {project.AssemblyName} restarted");
+        }
+        catch (System.Exception)
+        {
+            
+        }
+    }
+
+    private static async Task UploadAsync(string assemblyName, Server server, string archivePath, CancellationToken token)
+    {
+        Console.WriteLine($"Uploading publish files to server");
+        var remoteAppDirectory = Path.Combine(server.RootDirectory, assemblyName);
+        var remoteArchiveFile = Path.Combine(server.RootDirectory, $"{assemblyName}.tar.gz");
+        await server.UploadFileAsync(archivePath, remoteArchiveFile, token);
+        await server.SftpClient.CreateDirectoryAsync(remoteAppDirectory, true, cancellationToken: token);
+        await server.ExecuteAsync($"tar --overwrite -xzvf {remoteArchiveFile} -C {remoteAppDirectory}", token);
+        Console.WriteLine($"Publish files uploaded!");
+    }
+
+    private static async Task<string> Publish(Project project, CancellationToken token)
+    {
+        var publishPath = Path.Combine(project.WorkDirectory, "publish");
         if (Directory.Exists(publishPath)) Directory.Delete(publishPath, true);
 
         Console.WriteLine($"publishing project {project.AssemblyName}");
+
         await ProcessHelper.RunCommandAsync(
             "dotnet",
-            ["publish", "-o", publishPath, "-r", "linux-x64", "--self-contained", project.Folder],
+            ["publish", "-o", publishPath, "-r", "linux-x64", "--self-contained", project.RootDirectory],
             token
         );
 
-        var archivePath = Path.Combine(binFolder, "publish.tar.gz");
+        var archivePath = Path.Combine(project.WorkDirectory, "publish.tar.gz");
         if (File.Exists(archivePath)) File.Delete(archivePath);
 
         using (var archiveStream = File.OpenWrite(archivePath))
         {
             using var gzipStream = new GZipStream(archiveStream, CompressionLevel.SmallestSize);
             await TarFile.CreateFromDirectoryAsync(publishPath, gzipStream, false, token);
-            Directory.Delete(publishPath, true);
         };
 
         Console.WriteLine($"Project {project.AssemblyName} published!");
-
-        var remoteRoot = "/var/dotnet-apps";
-        var remoteAppFolder = Path.Combine(remoteRoot, project.AssemblyName);
-        var remoteArchiveFile = Path.Combine(remoteRoot, $"{project.AssemblyName}.tar.gz");
-        Console.WriteLine($"Uploading publish files to server");
-        await server.UploadFileAsync(archivePath, remoteArchiveFile, token);
-        await server.SftpClient.CreateDirectoryAsync(remoteAppFolder, true, cancellationToken: token);
-        await server.ExecuteAsync($"tar --overwrite -xzvf {remoteArchiveFile} -C {remoteAppFolder}", token);
-        Console.WriteLine($"Publish files uploaded!");
+        return archivePath;
     }
 }

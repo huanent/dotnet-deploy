@@ -14,21 +14,21 @@ public class ServiceInstallCommand : BaseCommand
     protected override async Task ExecuteAsync(ParseResult parseResult, CancellationToken token)
     {
         var projectPath = parseResult.GetValue<string>(Constants.PROJECT_PARAMETER);
-        var project = new Project(projectPath);
-        var server = new Server(parseResult, project.Options);
-        await server.ConnectAsync(token);
-        var remoteRoot = "/var/dotnet-apps";
-        var remoteAppFolder = Path.Combine(remoteRoot, project.AssemblyName);
-        var remoteAppFile = Path.Combine(remoteAppFolder, project.AssemblyName);
+        using var project = new Project(projectPath);
+        await project.InitializeAsync(token);
+        using var server = new Server(parseResult, project.Options);
+        await server.InitializeAsync(token);
+        var remoteAppDirectory = Path.Combine(server.RootDirectory, project.AssemblyName);
+        var remoteAppFile = Path.Combine(remoteAppDirectory, project.AssemblyName);
         var serviceName = $"{project.AssemblyName}.service";
         var remoteServiceFile = Path.Combine("/etc/systemd/system", serviceName);
-        var servicePath = Path.Combine(project.Folder, "bin", serviceName);
+        var servicePath = Path.Combine(project.WorkDirectory, serviceName);
         File.WriteAllText(servicePath, $"""
         [Unit]
         Description={project.AssemblyName}
 
         [Service]
-        WorkingDirectory={remoteAppFolder}
+        WorkingDirectory={remoteAppDirectory}
         ExecStart={remoteAppFile}
         Restart=always
         RestartSec=10

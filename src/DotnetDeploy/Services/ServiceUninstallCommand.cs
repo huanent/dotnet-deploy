@@ -14,13 +14,14 @@ public class ServiceUninstallCommand : BaseCommand
     protected override async Task ExecuteAsync(ParseResult parseResult, CancellationToken token)
     {
         var projectPath = parseResult.GetValue<string>(Constants.PROJECT_PARAMETER);
-        var project = new Project(projectPath);
-        var server = new Server(parseResult, project.Options);
-        await server.ConnectAsync(token);
+        using var project = new Project(projectPath);
+        await project.InitializeAsync(token);
+        using var server = new Server(parseResult, project.Options);
+        await server.InitializeAsync(token);
         var serviceName = $"{project.AssemblyName}.service";
+        var remoteServiceFile = Path.Combine("/etc/systemd/system", serviceName);
         await server.ExecuteAsync($"systemctl stop {serviceName}", token);
         await server.ExecuteAsync($"systemctl disable {serviceName}", token);
-        var remoteServiceFile = Path.Combine("/etc/systemd/system", serviceName);
         await server.SftpClient.DeleteFileAsync(remoteServiceFile, token);
         Console.WriteLine($"Service {project.AssemblyName} uninstalled!");
     }

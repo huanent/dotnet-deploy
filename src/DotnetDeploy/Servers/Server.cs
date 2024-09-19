@@ -6,12 +6,15 @@ namespace DotnetDeploy.Servers;
 
 internal class Server : IDisposable
 {
+    private SshClient? sshClient;
+    private SftpClient? sftpClient;
     private readonly string? host;
     internal readonly string? username;
     internal string? password;
     internal string? privateKey;
-    internal SshClient? SshClient { get; set; }
-    internal SftpClient? SftpClient { get; set; }
+    internal string RootDirectory => "/var/dotnet-apps";
+    internal SshClient SshClient => sshClient ?? throw new Exception("Server not Initialized");
+    internal SftpClient SftpClient => sftpClient ?? throw new Exception("Server not Initialized");
 
     public Server(ParseResult parseResult, DeployOptions options)
     {
@@ -45,7 +48,7 @@ internal class Server : IDisposable
         }
     }
 
-    internal async Task ConnectAsync(CancellationToken token)
+    internal async Task InitializeAsync(CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(host)) throw new ArgumentNullException(nameof(host));
 
@@ -67,18 +70,18 @@ internal class Server : IDisposable
             AutoConnect = false
         };
 
-        SshClient = new SshClient(sshSettings);
         Console.WriteLine($"Connecting server {host} with {username}");
+        sshClient = new SshClient(sshSettings);
         await SshClient.ConnectAsync(token);
         Console.WriteLine($"Server {host} connected!");
-        SftpClient = await SshClient.OpenSftpClientAsync(token);
+        sftpClient = await SshClient.OpenSftpClientAsync(token);
     }
 
     public async Task UploadFileAsync(string localPath, string remotePath, CancellationToken token)
     {
         var folder = Path.GetDirectoryName(remotePath);
         var folderExist = await ExistFolderAsync(folder, token);
-        
+
         if (!folderExist)
         {
             await SftpClient.CreateDirectoryAsync(folder!, true, cancellationToken: token);
