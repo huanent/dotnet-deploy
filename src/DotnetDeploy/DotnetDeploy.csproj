@@ -8,7 +8,7 @@
     <PackageId>dotnet-deploy</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>deploy</ToolCommandName>
-    <Version>0.0.5</Version>
+    <Version>0.0.6</Version>
   </PropertyGroup>
 
   <ItemGroup>

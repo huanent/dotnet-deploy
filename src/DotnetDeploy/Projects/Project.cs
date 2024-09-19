@@ -12,20 +12,20 @@ internal class Project
 
     public DeployOptions Options => options;
 
-    public Project(string path)
+    public Project(string? path)
     {
-        CsprojFile = GetCsprojFilePath(path);
+        CsprojFile = DiscoverProjectFile(path);
         Folder = Path.GetDirectoryName(CsprojFile)!;
 
         AssemblyName = ProcessHelper.RunCommandAsync(
            "dotnet",
-           ["msbuild", path, "-getProperty:AssemblyName"],
+           ["msbuild", CsprojFile, "-getProperty:AssemblyName"],
            default
        ).Result;
 
         var userSecretId = ProcessHelper.RunCommandAsync(
             "dotnet",
-            ["msbuild", path, "-getProperty:UserSecretsId"],
+            ["msbuild", CsprojFile, "-getProperty:UserSecretsId"],
             default
         ).Result;
 
@@ -37,9 +37,14 @@ internal class Project
         configurationRoot.GetSection("deploy").Bind(options);
     }
 
-    private string GetCsprojFilePath(string path)
+    private static string DiscoverProjectFile(string? path)
     {
-        if (!Path.IsPathRooted(path)) path = Path.GetFullPath(path, Environment.CurrentDirectory);
+        path ??= Environment.CurrentDirectory;
+
+        if (!Path.IsPathRooted(path))
+        {
+            path = Path.GetFullPath(path, Environment.CurrentDirectory);
+        }
 
         if (path.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
         {
@@ -66,4 +71,5 @@ internal class Project
 
         throw new Exception("csproj file not found");
     }
+
 }
