@@ -8,13 +8,20 @@
     <PackageId>dotnet-deploy</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-deploy</ToolCommandName>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Authors>huanent</Authors>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24324.3" />
     <PackageReference Include="Tmds.Ssh" Version="0.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
+    <None Include="../../LICENSE.txt" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
