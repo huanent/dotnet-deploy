@@ -42,7 +42,7 @@ internal class Server : IDisposable
         }
 
         privateKey = parseResult.GetValue<string>(Constants.PRIVATE_KEY_PARAMETER);
-        if (string.IsNullOrWhiteSpace(password))
+        if (string.IsNullOrWhiteSpace(privateKey))
         {
             privateKey = options.PrivateKey;
         }
