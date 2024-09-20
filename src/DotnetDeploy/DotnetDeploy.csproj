@@ -7,8 +7,8 @@
     <Nullable>enable</Nullable>
     <PackageId>dotnet-deploy</PackageId>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>deploy</ToolCommandName>
-    <Version>0.1.0</Version>
+    <ToolCommandName>dotnet-deploy</ToolCommandName>
+    <Version>0.1.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
