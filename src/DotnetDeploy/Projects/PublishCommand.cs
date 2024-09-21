@@ -24,12 +24,12 @@ public class PublishCommand : BaseCommand
 
         try
         {
-            await server.SshClient.ExecuteAsync($"systemctl restart {project.AssemblyName}");
+            await server.ExecuteAsync($"systemctl restart {project.AssemblyName}", token);
             Console.WriteLine($"Service {project.AssemblyName} restarted");
         }
-        catch (System.Exception)
+        catch
         {
-            
+            Console.WriteLine($"Service {project.AssemblyName} not found,install systemd service is recommend!");
         }
     }
 

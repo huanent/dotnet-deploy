@@ -67,7 +67,10 @@ internal class Server : IDisposable
         {
             UserName = username!,
             Credentials = credentials,
-            AutoConnect = false
+            ConnectTimeout = TimeSpan.FromSeconds(30),
+            AutoConnect = false,
+            UpdateKnownHostsFileAfterAuthentication = true,
+            HostAuthentication = (knownHostResult, connectionInfo, token) => ValueTask.FromResult(true)
         };
 
         Console.WriteLine($"Connecting server {host} with {username}");
