@@ -29,7 +29,7 @@ public class PublishCommand : BaseCommand
         }
         catch
         {
-            Console.WriteLine($"Service {project.AssemblyName} not found,install systemd service is recommend!");
+            Console.WriteLine($"Service {project.AssemblyName} not found,install systemd a service is recommend!");
         }
     }
 

@@ -5,7 +5,7 @@ namespace DotnetDeploy;
 
 public static class ProcessHelper
 {
-    internal static async Task<string> RunCommandAsync(string program, IEnumerable<string> args, CancellationToken token)
+    public static async Task<string> RunCommandAsync(string program, IEnumerable<string> args, CancellationToken token)
     {
         using var process = new Process();
         process.StartInfo.FileName = program;

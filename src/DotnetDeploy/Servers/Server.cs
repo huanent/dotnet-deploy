@@ -4,17 +4,17 @@ using Tmds.Ssh;
 
 namespace DotnetDeploy.Servers;
 
-internal class Server : IDisposable
+public class Server : IDisposable
 {
     private SshClient? sshClient;
     private SftpClient? sftpClient;
     private readonly string? host;
-    internal readonly string? username;
-    internal string? password;
-    internal string? privateKey;
-    internal string RootDirectory => "/var/dotnet-apps";
-    internal SshClient SshClient => sshClient ?? throw new Exception("Server not Initialized");
-    internal SftpClient SftpClient => sftpClient ?? throw new Exception("Server not Initialized");
+    public readonly string? username;
+    public string? password;
+    public string? privateKey;
+    public string RootDirectory => "/var/dotnet-apps";
+    public SshClient SshClient => sshClient ?? throw new Exception("Server not Initialized");
+    public SftpClient SftpClient => sftpClient ?? throw new Exception("Server not Initialized");
 
     public Server(ParseResult parseResult, DeployOptions options)
     {
@@ -48,7 +48,7 @@ internal class Server : IDisposable
         }
     }
 
-    internal async Task InitializeAsync(CancellationToken token)
+    public async Task InitializeAsync(CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(host)) throw new ArgumentNullException(nameof(host));
 

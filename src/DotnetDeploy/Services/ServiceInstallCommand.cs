@@ -23,23 +23,34 @@ public class ServiceInstallCommand : BaseCommand
         var serviceName = $"{project.AssemblyName}.service";
         var remoteServiceFile = Path.Combine("/etc/systemd/system", serviceName);
         var servicePath = Path.Combine(project.WorkDirectory, serviceName);
-        File.WriteAllText(servicePath, $"""
-        [Unit]
-        Description={project.AssemblyName}
 
-        [Service]
-        WorkingDirectory={remoteAppDirectory}
-        ExecStart={remoteAppFile}
-        Restart=always
-        RestartSec=10
-        KillSignal=SIGINT
-        SyslogIdentifier={project.AssemblyName}
-        Environment=ASPNETCORE_ENVIRONMENT=Production
+        var service = new SystemdService
+        {
+            Unit = new Dictionary<string, object> {
+                {"Description", project.AssemblyName}
+            },
+            Service = new Dictionary<string, object>{
+                {"WorkingDirectory", remoteAppDirectory},
+                {"ExecStart", remoteAppFile},
+                {"Restart", "always"},
+                {"RestartSec", "10"},
+                {"KillSignal", "SIGINT"},
+                {"SyslogIdentifier", project.AssemblyName},
+                {
+                    "Environment",
+                    new Dictionary<string,string>{
+                        { "ASPNETCORE_ENVIRONMENT","Production"}
+                    }
+                },
+            },
+            Install = new Dictionary<string, object> {
+                {"WantedBy", "multi-user.target"},
+            }
+        };
 
-        [Install]
-        WantedBy=multi-user.target
-        """);
+        service.Merge(project.Options?.Service);
 
+        File.WriteAllText(servicePath, service.ToString());
         await server.UploadFileAsync(servicePath, remoteServiceFile, token);
         await server.ExecuteAsync($"systemctl enable {remoteServiceFile}", token);
         await server.ExecuteAsync($"systemctl start {serviceName}", token);

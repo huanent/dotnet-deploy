@@ -2,18 +2,18 @@ using Microsoft.Extensions.Configuration;
 
 namespace DotnetDeploy.Projects;
 
-internal class Project : IDisposable
+public class Project : IDisposable
 {
     private readonly DeployOptions options = new();
     private string? assemblyName;
 
-    internal DeployOptions Options => options;
-    internal string CsprojFile { get; init; }
-    internal string RootDirectory { get; init; }
-    internal string WorkDirectory { get; init; }
-    internal string AssemblyName => assemblyName ?? throw new Exception("Project not initialized");
+    public DeployOptions Options => options;
+    public string CsprojFile { get; init; }
+    public string RootDirectory { get; init; }
+    public string WorkDirectory { get; init; }
+    public string AssemblyName => assemblyName ?? throw new Exception("Project not initialized");
 
-    internal Project(string? path)
+    public Project(string? path)
     {
         CsprojFile = DiscoverProjectFile(path);
         RootDirectory = Path.GetDirectoryName(CsprojFile)!;
@@ -21,7 +21,7 @@ internal class Project : IDisposable
         if (!Directory.Exists(WorkDirectory)) Directory.CreateDirectory(WorkDirectory);
     }
 
-    internal async Task InitializeAsync(CancellationToken token)
+    public async Task InitializeAsync(CancellationToken token)
     {
         assemblyName = ProcessHelper.RunCommandAsync(
             "dotnet",
@@ -45,7 +45,13 @@ internal class Project : IDisposable
         builder.AddJsonFile("appsettings.json", true, true);
         if (!string.IsNullOrWhiteSpace(userSecretId)) builder.AddUserSecrets(userSecretId, true);
         var configurationRoot = builder.Build();
-        configurationRoot.GetSection("deploy").Bind(options);
+        var deploy = configurationRoot.GetSection("Deploy");
+        deploy.Bind(options);
+        var environment = deploy.GetSection("Service:Service:Environment").Get<Dictionary<string, string>>();
+        if (environment != null && options.Service != null && options.Service.TryGetValue("Service", out var service))
+        {
+            if (service != null) service["Environment"] = environment;
+        }
     }
 
     private static string DiscoverProjectFile(string? path)

@@ -1,10 +1,10 @@
 namespace DotnetDeploy;
 
-internal class Constants
+public class Constants
 {
-    internal const string HOST_PARAMETER = "--host";
-    internal const string USERNAME_PARAMETER = "--username";
-    internal const string PASSWORD_PARAMETER = "--password";
-    internal const string PRIVATE_KEY_PARAMETER = "--private-key";
-    internal const string PROJECT_PARAMETER = "--project";
+    public const string HOST_PARAMETER = "--host";
+    public const string USERNAME_PARAMETER = "--username";
+    public const string PASSWORD_PARAMETER = "--password";
+    public const string PRIVATE_KEY_PARAMETER = "--private-key";
+    public const string PROJECT_PARAMETER = "--project";
 }
