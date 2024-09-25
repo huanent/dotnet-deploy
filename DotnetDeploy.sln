@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetDeploy", "src\DotnetDeploy.csproj", "{2AF3C0D1-FF5F-4D93-A534-D523F4B8414B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{9E6EA91D-9B00-417C-9EFE-215284BACF80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspnetSample", "samples\AspnetSample\AspnetSample.csproj", "{CF05C518-D568-4147-B3A1-6AF7A28D9007}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2AF3C0D1-FF5F-4D93-A534-D523F4B8414B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AF3C0D1-FF5F-4D93-A534-D523F4B8414B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AF3C0D1-FF5F-4D93-A534-D523F4B8414B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AF3C0D1-FF5F-4D93-A534-D523F4B8414B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF05C518-D568-4147-B3A1-6AF7A28D9007}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF05C518-D568-4147-B3A1-6AF7A28D9007}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF05C518-D568-4147-B3A1-6AF7A28D9007}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF05C518-D568-4147-B3A1-6AF7A28D9007}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CF05C518-D568-4147-B3A1-6AF7A28D9007} = {9E6EA91D-9B00-417C-9EFE-215284BACF80}
+	EndGlobalSection
+EndGlobal
