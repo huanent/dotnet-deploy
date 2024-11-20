@@ -4,7 +4,7 @@
     "debug": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "commandLineArgs": "service status --project ../samples/AspnetSample"
+      "commandLineArgs": "publish  --project ../samples/AspnetSample"
     }
   }
 }

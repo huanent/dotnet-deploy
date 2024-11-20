@@ -10,6 +10,10 @@ public class PublishCommand : BaseCommand
     public PublishCommand()
         : base("publish", "Publish project to remote host")
     {
+        Options.Add(new CliOption<string[]?>(Constants.INCLUDE_FILES_PARAMETER)
+        {
+            Description = "Copy the specified project file or directory to output directory",
+        });
     }
 
     protected override async Task ExecuteAsync(ParseResult parseResult, CancellationToken token)
@@ -17,9 +21,12 @@ public class PublishCommand : BaseCommand
         var projectPath = parseResult.GetValue<string>(Constants.PROJECT_PARAMETER);
         using var project = new Project(projectPath);
         await project.InitializeAsync(token);
+        var publishPath = await PublishAsync(project, token);
+        var includeFiles = parseResult.GetValue<string[]>(Constants.INCLUDE_FILES_PARAMETER);
+        if (includeFiles != null) IncludeFiles(project, publishPath, includeFiles);
+        var archivePath = await CompressAsync(project, publishPath, token);
         using var server = new Server(parseResult, project.Options);
         await server.InitializeAsync(token);
-        string archivePath = await Publish(project, token);
         await UploadAsync(project.AssemblyName, server, archivePath, token);
 
         try
@@ -44,7 +51,7 @@ public class PublishCommand : BaseCommand
         Console.WriteLine($"Publish files uploaded!");
     }
 
-    private static async Task<string> Publish(Project project, CancellationToken token)
+    private static async Task<string> PublishAsync(Project project, CancellationToken token)
     {
         var publishPath = Path.Combine(project.WorkDirectory, "publish");
         if (Directory.Exists(publishPath)) Directory.Delete(publishPath, true);
@@ -57,6 +64,11 @@ public class PublishCommand : BaseCommand
             token
         );
 
+        return publishPath;
+    }
+
+    private static async Task<string> CompressAsync(Project project, string publishPath, CancellationToken token)
+    {
         var archivePath = Path.Combine(project.WorkDirectory, "publish.tar.gz");
         if (File.Exists(archivePath)) File.Delete(archivePath);
 
@@ -68,5 +80,35 @@ public class PublishCommand : BaseCommand
 
         Console.WriteLine($"Project {project.AssemblyName} published!");
         return archivePath;
+    }
+
+    private static void IncludeFiles(Project project, string publishPath, string[] paths)
+    {
+        foreach (var path in paths)
+        {
+            if (Path.IsPathRooted(path)) throw new Exception($"Can not include absolute path '{path}'");
+            var sourcePath = Path.Combine(project.RootDirectory, path);
+            if (File.Exists(sourcePath))
+            {
+                var targetPath = Path.Combine(publishPath, path);
+                CopyFile(sourcePath, targetPath);
+            }
+
+            var files = Directory.GetFiles(project.RootDirectory, path, SearchOption.AllDirectories);
+
+            foreach (var file in files)
+            {
+                var relativePath = Path.GetRelativePath(project.RootDirectory, file);
+                var targetPath = Path.Combine(publishPath, relativePath);
+                CopyFile(file, targetPath);
+            }
+        }
+    }
+
+    private static void CopyFile(string source, string target)
+    {
+        var directory = Path.GetDirectoryName(target);
+        if (directory != null && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
+        File.Copy(source, target);
     }
 }

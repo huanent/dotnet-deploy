@@ -7,4 +7,5 @@ public class Constants
     public const string PASSWORD_PARAMETER = "--password";
     public const string PRIVATE_KEY_PARAMETER = "--private-key";
     public const string PROJECT_PARAMETER = "--project";
+    public const string INCLUDE_FILES_PARAMETER = "--include-files";
 }
