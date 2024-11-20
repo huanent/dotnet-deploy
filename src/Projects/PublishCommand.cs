@@ -109,6 +109,6 @@ public class PublishCommand : BaseCommand
     {
         var directory = Path.GetDirectoryName(target);
         if (directory != null && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
-        File.Copy(source, target);
+        File.Copy(source, target, true);
     }
 }
