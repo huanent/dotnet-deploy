@@ -4,7 +4,7 @@ using DotnetDeploy.Servers;
 
 namespace DotnetDeploy.Services;
 
-public class ServiceUninstallCommand : BaseCommand
+public class ServiceUninstallCommand : BaseCommand, IServiceCommand
 {
     public ServiceUninstallCommand()
         : base("uninstall", "Uninstall project remote host service")

@@ -4,7 +4,7 @@ using DotnetDeploy.Servers;
 
 namespace DotnetDeploy.Services;
 
-public class ServiceRestartCommand : BaseCommand
+public class ServiceRestartCommand : BaseCommand, IServiceCommand
 {
     public ServiceRestartCommand()
         : base("restart", "Restart project service on remote host")

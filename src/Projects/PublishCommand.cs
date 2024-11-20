@@ -5,7 +5,7 @@ using DotnetDeploy.Servers;
 
 namespace DotnetDeploy.Projects;
 
-public class PublishCommand : BaseCommand
+public class PublishCommand : BaseCommand, ICommand
 {
     public PublishCommand()
         : base("publish", "Publish project to remote host")

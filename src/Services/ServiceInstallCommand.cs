@@ -4,7 +4,7 @@ using DotnetDeploy.Servers;
 
 namespace DotnetDeploy.Services;
 
-public class ServiceInstallCommand : BaseCommand
+public class ServiceInstallCommand : BaseCommand, IServiceCommand
 {
     public ServiceInstallCommand()
         : base("install", "Install project remote host service")

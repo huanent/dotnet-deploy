@@ -4,7 +4,7 @@ using DotnetDeploy.Servers;
 
 namespace DotnetDeploy.Services;
 
-public class ServiceStatusCommand : BaseCommand
+public class ServiceStatusCommand : BaseCommand, IServiceCommand
 {
     public ServiceStatusCommand()
         : base("status", "Get project service status")
