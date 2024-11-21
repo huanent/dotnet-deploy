@@ -1,6 +1,6 @@
 using System.CommandLine;
 
-namespace DotnetDeploy;
+namespace DotnetDeploy.Infrastructure;
 
 public abstract class BaseCommand : CliCommand
 {

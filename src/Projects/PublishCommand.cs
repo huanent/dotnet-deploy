@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.Formats.Tar;
 using System.IO.Compression;
+using DotnetDeploy.Infrastructure;
 using DotnetDeploy.Servers;
 
 namespace DotnetDeploy.Projects;

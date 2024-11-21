@@ -1,4 +1,5 @@
 using System.CommandLine;
+using DotnetDeploy.Infrastructure;
 
 namespace DotnetDeploy.Servers;
 

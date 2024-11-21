@@ -1,6 +1,6 @@
 using System.CommandLine;
 
-namespace DotnetDeploy.Commands;
+namespace DotnetDeploy.Infrastructure;
 
 internal class RootCommand(IEnumerable<ICommand> commands)
 {

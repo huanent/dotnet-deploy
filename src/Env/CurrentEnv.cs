@@ -1,6 +1,9 @@
 namespace DotnetDeploy.Env;
 
-public class CurrentEnv
+internal class CurrentEnv
 {
-    
+    internal CurrentEnv(IEnumerable<IOperatingSystem> operatingSystems)
+    {
+        
+    }
 }

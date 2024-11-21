@@ -1,4 +1,4 @@
-namespace DotnetDeploy;
+namespace DotnetDeploy.Infrastructure;
 
 public class Constants
 {

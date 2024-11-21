@@ -1,4 +1,4 @@
-namespace DotnetDeploy.Env.OperatingSystem;
+namespace DotnetDeploy.Env.OperatingSystems;
 
 internal class Mac : IOperatingSystem
 {

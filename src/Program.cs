@@ -1,5 +1,6 @@
-﻿using DotnetDeploy;
-using DotnetDeploy.Commands;
+﻿using DotnetDeploy.Env;
+using DotnetDeploy.Env.OperatingSystems;
+using DotnetDeploy.Infrastructure;
 using DotnetDeploy.Projects;
 using DotnetDeploy.Servers;
 using DotnetDeploy.Services;
@@ -9,6 +10,10 @@ using Microsoft.Extensions.Hosting;
 var hostBuilder = new HostBuilder();
 hostBuilder.ConfigureServices(servers =>
 {
+    servers.AddSingleton<IOperatingSystem, Linux>();
+    servers.AddSingleton<IOperatingSystem, Mac>();
+    servers.AddSingleton<CurrentEnv>();
+
     servers.AddSingleton<IServiceCommand, ServiceInstallCommand>();
     servers.AddSingleton<IServiceCommand, ServiceUninstallCommand>();
     servers.AddSingleton<IServiceCommand, ServiceStatusCommand>();
