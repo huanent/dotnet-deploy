@@ -11,10 +11,11 @@
     <Version>0.2.1</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Authors>huanent</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Huanent.DependencyInjection" Version="3.0.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24324.3" />
     <PackageReference Include="Tmds.Ssh" Version="0.6.0" />
   </ItemGroup>

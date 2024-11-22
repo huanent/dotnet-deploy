@@ -2,9 +2,11 @@ using System.CommandLine;
 using DotnetDeploy.Infrastructure;
 using DotnetDeploy.Projects;
 using DotnetDeploy.Servers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotnetDeploy.Services;
 
+[Singleton(typeof(IServiceCommand))]
 public class ServiceUninstallCommand : BaseCommand, IServiceCommand
 {
     public ServiceUninstallCommand()
@@ -39,7 +41,7 @@ public class ServiceUninstallCommand : BaseCommand, IServiceCommand
         {
             Console.WriteLine($"Service {project.AssemblyName} not enabled!");
         }
-        
+
         await server.SftpClient.DeleteFileAsync(remoteServiceFile, token);
         Console.WriteLine($"Service {project.AssemblyName} uninstalled!");
     }

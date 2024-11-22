@@ -3,9 +3,11 @@ using System.Formats.Tar;
 using System.IO.Compression;
 using DotnetDeploy.Infrastructure;
 using DotnetDeploy.Servers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotnetDeploy.Projects;
 
+[Singleton(typeof(ICommand))]
 public class PublishCommand : BaseCommand, ICommand
 {
     public PublishCommand()

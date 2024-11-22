@@ -1,7 +1,9 @@
 using System.CommandLine;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotnetDeploy.Infrastructure;
 
+[Singleton]
 internal class RootCommand(IEnumerable<ICommand> commands)
 {
     public async Task<int> InvokeAsync(string[] args)
