@@ -9,6 +9,7 @@ public class Server : IDisposable
 {
     private SshClient? sshClient;
     private SftpClient? sftpClient;
+    private string? arch;
     private readonly string? host;
     public readonly string? username;
     public string? password;
@@ -16,6 +17,7 @@ public class Server : IDisposable
     public string RootDirectory => "/var/dotnet-apps";
     public SshClient SshClient => sshClient ?? throw new Exception("Server not Initialized");
     public SftpClient SftpClient => sftpClient ?? throw new Exception("Server not Initialized");
+    public string Arch => arch ?? throw new Exception("Server not Initialized");
 
     public Server(ParseResult parseResult, DeployOptions options)
     {
@@ -79,6 +81,7 @@ public class Server : IDisposable
         await SshClient.ConnectAsync(token);
         Console.WriteLine($"Server {host} connected!");
         sftpClient = await SshClient.OpenSftpClientAsync(token);
+        arch = await ExecuteAsync("arch", token);
     }
 
     public async Task UploadFileAsync(string localPath, string remotePath, CancellationToken token)

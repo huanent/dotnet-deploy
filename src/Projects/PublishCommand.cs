@@ -21,15 +21,16 @@ public class PublishCommand : BaseCommand, ICommand
 
     protected override async Task ExecuteAsync(ParseResult parseResult, CancellationToken token)
     {
+
         var projectPath = parseResult.GetValue<string>(Constants.PROJECT_PARAMETER);
         using var project = new Project(projectPath);
         await project.InitializeAsync(token);
-        var publishPath = await PublishAsync(project, token);
+        using var server = new Server(parseResult, project.Options);
+        await server.InitializeAsync(token);
+        var publishPath = await PublishAsync(project, server, token);
         var includeFiles = parseResult.GetValue<string[]>(Constants.INCLUDE_FILES_PARAMETER);
         if (includeFiles != null) IncludeFiles(project, publishPath, includeFiles);
         var archivePath = await CompressAsync(project, publishPath, token);
-        using var server = new Server(parseResult, project.Options);
-        await server.InitializeAsync(token);
         await UploadAsync(project.AssemblyName, server, archivePath, token);
 
         try
@@ -54,20 +55,31 @@ public class PublishCommand : BaseCommand, ICommand
         Console.WriteLine($"Publish files uploaded!");
     }
 
-    private static async Task<string> PublishAsync(Project project, CancellationToken token)
+    private static async Task<string> PublishAsync(Project project, Server server, CancellationToken token)
     {
         var publishPath = Path.Combine(project.WorkDirectory, "publish");
         if (Directory.Exists(publishPath)) Directory.Delete(publishPath, true);
 
         Console.WriteLine($"publishing project {project.AssemblyName}");
+        var rid = GetRid(server.Arch);
 
         await ProcessHelper.RunCommandAsync(
             "dotnet",
-            ["publish", "-o", publishPath, "-r", "linux-x64", "--self-contained", project.RootDirectory],
+            ["publish", "-o", publishPath, "-r", rid, "--self-contained", project.RootDirectory],
             token
         );
 
         return publishPath;
+    }
+
+    private static string GetRid(string arch)
+    {
+        return arch switch
+        {
+            "x86_64" => "linux-x64",
+            "aarch64" => "linux-arm64",
+            _ => throw new NotSupportedException($"Not supported arch {arch}"),
+        };
     }
 
     private static async Task<string> CompressAsync(Project project, string publishPath, CancellationToken token)
@@ -79,7 +91,8 @@ public class PublishCommand : BaseCommand, ICommand
         {
             using var gzipStream = new GZipStream(archiveStream, CompressionLevel.SmallestSize);
             await TarFile.CreateFromDirectoryAsync(publishPath, gzipStream, false, token);
-        };
+        }
+        ;
 
         Console.WriteLine($"Project {project.AssemblyName} published!");
         return archivePath;
