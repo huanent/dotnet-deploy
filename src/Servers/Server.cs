@@ -104,7 +104,7 @@ public class Server : IDisposable
         await SftpClient.UploadFileAsync(localPath, remotePath, token);
     }
 
-    public async Task<string> ExecuteAsync(string command, CancellationToken token)
+    public async Task<string?> ExecuteAsync(string command, CancellationToken token)
     {
         var process = await SshClient.ExecuteAsync(command, cancellationToken: token);
         var (output, error) = await process.ReadToEndAsStringAsync();
@@ -114,7 +114,7 @@ public class Server : IDisposable
             throw new Exception(error);
         }
 
-        return output;
+        return output?.Trim();
     }
 
     public async Task<bool> ExistFileAsync(string path, CancellationToken token)
