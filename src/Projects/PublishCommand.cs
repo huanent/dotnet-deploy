@@ -21,7 +21,6 @@ public class PublishCommand : BaseCommand, ICommand
 
     protected override async Task ExecuteAsync(ParseResult parseResult, CancellationToken token)
     {
-
         var projectPath = parseResult.GetValue<string>(Constants.PROJECT_PARAMETER);
         using var project = new Project(projectPath);
         await project.InitializeAsync(token);
@@ -47,8 +46,8 @@ public class PublishCommand : BaseCommand, ICommand
     private static async Task UploadAsync(string assemblyName, Server server, string archivePath, CancellationToken token)
     {
         Console.WriteLine($"Uploading publish files to server");
-        var remoteAppDirectory = Path.Combine(server.RootDirectory, assemblyName);
-        var remoteArchiveFile = Path.Combine(server.RootDirectory, $"{assemblyName}.tar.gz");
+        var remoteAppDirectory = Path.Combine(Server.RootDirectory, assemblyName);
+        var remoteArchiveFile = Path.Combine(Server.RootDirectory, $"{assemblyName}.tar.gz");
         await server.UploadFileAsync(archivePath, remoteArchiveFile, token);
         await server.SftpClient.CreateDirectoryAsync(remoteAppDirectory, true, cancellationToken: token);
         await server.ExecuteAsync($"tar --overwrite -xzvf {remoteArchiveFile} -C {remoteAppDirectory}", token);

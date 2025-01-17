@@ -1,19 +1,50 @@
 using System.Text;
+using DotnetDeploy.Projects;
+using DotnetDeploy.Servers;
 
 namespace DotnetDeploy.Services;
 
 public class SystemdService : Dictionary<string, Dictionary<string, object>?>
 {
-   public SystemdService() : base(StringComparer.OrdinalIgnoreCase)
+   public SystemdService() { }
+
+   public SystemdService(Project project) : base(StringComparer.OrdinalIgnoreCase)
    {
 
+      var remoteAppDirectory = Path.Combine(Server.RootDirectory, project.AssemblyName);
+      var remoteAppFile = Path.Combine(remoteAppDirectory, project.AssemblyName);
+
+      Unit = new Dictionary<string, object> {
+         {"Description", project.AssemblyName}
+      };
+
+      Service = new Dictionary<string, object>{
+         {"WorkingDirectory", remoteAppDirectory},
+         {"ExecStart", remoteAppFile},
+         {"Restart", "always"},
+         {"RestartSec", "10"},
+         {"KillSignal", "SIGINT"},
+         {"SyslogIdentifier", project.AssemblyName},
+         {
+             "Environment",
+             new Dictionary<string,string>{
+                 { "ASPNETCORE_ENVIRONMENT","Production"}
+             }
+         },
+      };
+
+      Install = new Dictionary<string, object> {
+         {"WantedBy", "multi-user.target"},
+      };
+
+      Merge(project.Options?.Service);
    }
 
    public Dictionary<string, object>? Unit { get => base[nameof(Unit)]; set => base[nameof(Unit)] = value; }
    public Dictionary<string, object>? Service { get => base[nameof(Service)]; set => base[nameof(Service)] = value; }
    public Dictionary<string, object>? Install { get => base[nameof(Install)]; set => base[nameof(Install)] = value; }
 
-   public void Merge(SystemdService? service)
+   private void Merge(SystemdService? service)
    {
       if (service == null) return;
 

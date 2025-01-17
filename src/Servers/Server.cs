@@ -14,7 +14,7 @@ public class Server : IDisposable
     public readonly string? username;
     public string? password;
     public string? privateKey;
-    public string RootDirectory => "/var/dotnet-apps";
+    public static string RootDirectory => "/var/dotnet-apps";
     public SshClient SshClient => sshClient ?? throw new Exception("Server not Initialized");
     public SftpClient SftpClient => sftpClient ?? throw new Exception("Server not Initialized");
     public string Arch => arch ?? throw new Exception("Server not Initialized");

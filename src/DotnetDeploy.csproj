@@ -16,8 +16,8 @@
 
   <ItemGroup>
     <PackageReference Include="Huanent.DependencyInjection" Version="3.0.0" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24324.3" />
-    <PackageReference Include="Tmds.Ssh" Version="0.6.0" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24528.1" />
+    <PackageReference Include="Tmds.Ssh" Version="0.11.0" />
   </ItemGroup>
 
   <ItemGroup>
