@@ -4,7 +4,7 @@
     "debug": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "commandLineArgs": "info --project ../samples/AspnetSample",
+      "commandLineArgs": "info --project ../samples/AspnetSample --host 127.0.0.1",
       "workingDirectory": "./"
     }
   }

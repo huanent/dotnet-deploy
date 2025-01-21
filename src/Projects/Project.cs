@@ -43,12 +43,27 @@ public class Project : IDisposable
         var builder = new ConfigurationBuilder();
         builder.SetBasePath(RootDirectory);
         builder.AddJsonFile("appsettings.json", true, true);
+        builder.AddJsonFile("appsettings.deploy.json", true, true);
         if (!string.IsNullOrWhiteSpace(userSecretId)) builder.AddUserSecrets(userSecretId, true);
         var configurationRoot = builder.Build();
         var deploy = configurationRoot.GetSection("Deploy");
         deploy.Bind(options);
-        var environment = deploy.GetSection("Service:Service:Environment").Get<Dictionary<string, string>>();
-        if (environment != null && options.Service != null && options.Service.TryGetValue("Service", out var service))
+        BindEnvironment(deploy, options.Service);
+
+        if (options.Hosts != null)
+        {
+            foreach (var item in options.Hosts)
+            {
+                var hostSection= deploy.GetSection($"Hosts:{item.Key}");
+                BindEnvironment(hostSection, item.Value.Service);
+            }
+        }
+    }
+
+    private void BindEnvironment(IConfigurationSection section, Services.SystemdService? systemdService)
+    {
+        var environment = section.GetSection("Service:Service:Environment").Get<Dictionary<string, string>>();
+        if (environment != null && systemdService != null && systemdService.TryGetValue("Service", out var service))
         {
             if (service != null) service["Environment"] = environment;
         }

@@ -19,13 +19,9 @@ public class Server : IDisposable
     public SftpClient SftpClient => sftpClient ?? throw new Exception("Server not Initialized");
     public string Arch => arch ?? throw new Exception("Server not Initialized");
 
-    public Server(ParseResult parseResult, DeployOptions options)
+    public Server(string host, ParseResult parseResult, HostDeployOptions options)
     {
-        host = parseResult.GetValue<string>(Constants.HOST_PARAMETER);
-        if (string.IsNullOrWhiteSpace(host))
-        {
-            host = options.Host;
-        }
+        this.host = host;
 
         username = parseResult.GetValue<string>(Constants.USERNAME_PARAMETER);
         if (string.IsNullOrWhiteSpace(username))

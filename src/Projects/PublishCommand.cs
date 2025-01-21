@@ -24,7 +24,34 @@ public class PublishCommand : BaseCommand, ICommand
         var projectPath = parseResult.GetValue<string>(Constants.PROJECT_PARAMETER);
         using var project = new Project(projectPath);
         await project.InitializeAsync(token);
-        using var server = new Server(parseResult, project.Options);
+        var host = parseResult.GetValue<string>(Constants.HOST_PARAMETER);
+        HashSet<string> hosts = [];
+
+        if (!string.IsNullOrWhiteSpace(host))
+        {
+            hosts.Add(host);
+        }
+        else
+        {
+            if (!string.IsNullOrWhiteSpace(project.Options.Host)) hosts.Add(project.Options.Host);
+            if (project.Options.Hosts != null)
+            {
+                foreach (var item in project.Options.Hosts)
+                {
+                    hosts.Add(item.Key);
+                }
+            }
+        }
+
+        foreach (var item in hosts)
+        {
+            await PublishAsync(item, project, parseResult, token);
+        }
+    }
+
+    private async Task PublishAsync(string host, Project project, ParseResult parseResult, CancellationToken token)
+    {
+        using var server = new Server(host,parseResult, project.Options.Get(host));
         await server.InitializeAsync(token);
         var publishPath = await PublishAsync(project, server, token);
         var includeFiles = parseResult.GetValue<string[]>(Constants.INCLUDE_FILES_PARAMETER);

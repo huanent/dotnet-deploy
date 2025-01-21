@@ -26,13 +26,18 @@ public class InfoCommand : BaseCommand, ICommand
         var projectPath = parseResult.GetValue<string>(Constants.PROJECT_PARAMETER);
         using var project = new Project(projectPath);
         await project.InitializeAsync(token);
+        var host = parseResult.GetValue<string>(Constants.HOST_PARAMETER);
+        if (string.IsNullOrWhiteSpace(host)) host = project.Options.Host;
+        if (string.IsNullOrWhiteSpace(host)) throw new Exception("Host can not empty");
+        var options = project.Options.Get(host);
 
         Console.WriteLine(project.AssemblyName);
         Console.WriteLine(project.RootDirectory);
         Console.WriteLine(project.WorkDirectory);
         Console.WriteLine(project.CsprojFile);
+        Console.WriteLine(host);
 
-        var optionsJson = JsonSerializer.Serialize(project.Options, new JsonSerializerOptions
+        var optionsJson = JsonSerializer.Serialize(options, new JsonSerializerOptions
         {
             WriteIndented = true
         });
