@@ -8,7 +8,7 @@
     <PackageId>dotnet-deploy</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-deploy</ToolCommandName>
-    <Version>0.3.1</Version>
+    <Version>0.4.0</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Authors>huanent</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
