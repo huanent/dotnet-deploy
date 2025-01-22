@@ -3,7 +3,7 @@ using DotnetDeploy.Infrastructure;
 using DotnetDeploy.Projects;
 using Tmds.Ssh;
 
-namespace DotnetDeploy.Servers;
+namespace DotnetDeploy.Systemd;
 
 public class Server : IDisposable
 {

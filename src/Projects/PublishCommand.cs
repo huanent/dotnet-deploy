@@ -2,7 +2,7 @@ using System.CommandLine;
 using System.Formats.Tar;
 using System.IO.Compression;
 using DotnetDeploy.Infrastructure;
-using DotnetDeploy.Servers;
+using DotnetDeploy.Systemd;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotnetDeploy.Projects;

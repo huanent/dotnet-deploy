@@ -2,13 +2,13 @@ using System.CommandLine;
 using DotnetDeploy.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotnetDeploy.Servers;
+namespace DotnetDeploy.Systemd;
 
 [Singleton(typeof(ICommand))]
-public class ServiceCommand : CliCommand, ICommand
+public class SystemdCommand : CliCommand, ICommand
 {
-    public ServiceCommand(IEnumerable<IServiceCommand> commands) : base(
-        "service", "Manager project remote host service")
+    public SystemdCommand(IEnumerable<ISystemdCommand> commands) : base(
+        "systemd", "Manager project remote host systemd service")
     {
         foreach (var command in commands)
         {

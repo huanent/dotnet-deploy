@@ -1,16 +1,16 @@
 using System.CommandLine;
 using DotnetDeploy.Infrastructure;
 using DotnetDeploy.Projects;
-using DotnetDeploy.Servers;
+using DotnetDeploy.Systemd;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotnetDeploy.Services;
 
-[Singleton(typeof(IServiceCommand))]
-public class ServiceInstallCommand : BaseCommand, IServiceCommand
+[Singleton(typeof(ISystemdCommand))]
+public class SystemdUninstallCommand : BaseCommand, ISystemdCommand
 {
-    public ServiceInstallCommand()
-        : base("install", "Install project remote host service")
+    public SystemdUninstallCommand()
+        : base("uninstall", "Uninstall project systemd service on remote host")
     {
     }
 
@@ -27,12 +27,26 @@ public class ServiceInstallCommand : BaseCommand, IServiceCommand
         await server.InitializeAsync(token);
         var serviceName = $"{project.AssemblyName}.service";
         var remoteServiceFile = Path.Combine("/etc/systemd/system", serviceName);
-        var servicePath = Path.Combine(project.WorkDirectory, serviceName);
-        var service = new SystemdService(project);
-        File.WriteAllText(servicePath, service.ToString());
-        await server.UploadFileAsync(servicePath, remoteServiceFile, token);
-        await server.ExecuteAsync($"systemctl enable {remoteServiceFile}", token);
-        await server.ExecuteAsync($"systemctl start {serviceName}", token);
-        Console.WriteLine($"Service {project.AssemblyName} installed!");
+
+        try
+        {
+            await server.ExecuteAsync($"systemctl stop {serviceName}", token);
+        }
+        catch
+        {
+            Console.WriteLine($"Service {project.AssemblyName} not running!");
+        }
+
+        try
+        {
+            await server.ExecuteAsync($"systemctl disable {serviceName}", token);
+        }
+        catch
+        {
+            Console.WriteLine($"Service {project.AssemblyName} not enabled!");
+        }
+
+        await server.SftpClient.DeleteFileAsync(remoteServiceFile, token);
+        Console.WriteLine($"Service {project.AssemblyName} uninstalled!");
     }
 }

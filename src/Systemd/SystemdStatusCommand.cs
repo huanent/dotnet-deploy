@@ -1,16 +1,15 @@
 using System.CommandLine;
 using DotnetDeploy.Infrastructure;
 using DotnetDeploy.Projects;
-using DotnetDeploy.Servers;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotnetDeploy.Services;
+namespace DotnetDeploy.Systemd;
 
-[Singleton(typeof(IServiceCommand))]
-public class ServiceStatusCommand : BaseCommand, IServiceCommand
+[Singleton(typeof(ISystemdCommand))]
+public class SystemdStatusCommand : BaseCommand, ISystemdCommand
 {
-    public ServiceStatusCommand()
-        : base("status", "Get project service status")
+    public SystemdStatusCommand()
+        : base("status", "Get project systemd service status on remote host")
     {
     }
 

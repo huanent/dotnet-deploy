@@ -1,8 +1,8 @@
 using System.Text;
 using DotnetDeploy.Projects;
-using DotnetDeploy.Servers;
+using DotnetDeploy.Systemd;
 
-namespace DotnetDeploy.Services;
+namespace DotnetDeploy.Systemd;
 
 public class SystemdService : Dictionary<string, Dictionary<string, object>?>
 {
@@ -37,7 +37,7 @@ public class SystemdService : Dictionary<string, Dictionary<string, object>?>
          {"WantedBy", "multi-user.target"},
       };
 
-      Merge(project.Options?.Service);
+      Merge(project.Options?.Systemd);
    }
 
    public Dictionary<string, object>? Unit { get => base[nameof(Unit)]; set => base[nameof(Unit)] = value; }

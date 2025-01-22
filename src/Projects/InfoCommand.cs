@@ -1,10 +1,7 @@
 using System.CommandLine;
-using System.Formats.Tar;
-using System.IO.Compression;
 using System.Text.Json;
 using DotnetDeploy.Infrastructure;
-using DotnetDeploy.Servers;
-using DotnetDeploy.Services;
+using DotnetDeploy.Systemd;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotnetDeploy.Projects;

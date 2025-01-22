@@ -1,16 +1,15 @@
 using System.CommandLine;
 using DotnetDeploy.Infrastructure;
 using DotnetDeploy.Projects;
-using DotnetDeploy.Servers;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotnetDeploy.Services;
+namespace DotnetDeploy.Systemd;
 
-[Singleton(typeof(IServiceCommand))]
-public class ServiceRestartCommand : BaseCommand, IServiceCommand
+[Singleton(typeof(ISystemdCommand))]
+public class SystemdRestartCommand : BaseCommand, ISystemdCommand
 {
-    public ServiceRestartCommand()
-        : base("restart", "Restart project service on remote host")
+    public SystemdRestartCommand()
+        : base("restart", "Restart project systemd service on remote host")
     {
     }
 

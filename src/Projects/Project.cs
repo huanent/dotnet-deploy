@@ -1,3 +1,4 @@
+using DotnetDeploy.Systemd;
 using Microsoft.Extensions.Configuration;
 
 namespace DotnetDeploy.Projects;
@@ -48,21 +49,21 @@ public class Project : IDisposable
         var configurationRoot = builder.Build();
         var deploy = configurationRoot.GetSection("Deploy");
         deploy.Bind(options);
-        BindEnvironment(deploy, options.Service);
+        BindEnvironment(deploy, options.Systemd);
 
         if (options.Hosts != null)
         {
             foreach (var item in options.Hosts)
             {
                 var hostSection= deploy.GetSection($"Hosts:{item.Key}");
-                BindEnvironment(hostSection, item.Value.Service);
+                BindEnvironment(hostSection, item.Value.Systemd);
             }
         }
     }
 
-    private void BindEnvironment(IConfigurationSection section, Services.SystemdService? systemdService)
+    private static void BindEnvironment(IConfigurationSection section, SystemdService? systemdService)
     {
-        var environment = section.GetSection("Service:Service:Environment").Get<Dictionary<string, string>>();
+        var environment = section.GetSection("Systemd:Service:Environment").Get<Dictionary<string, string>>();
         if (environment != null && systemdService != null && systemdService.TryGetValue("Service", out var service))
         {
             if (service != null) service["Environment"] = environment;
