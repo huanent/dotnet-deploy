@@ -23,7 +23,7 @@ dotnet deploy publish --host 127.0.0.1 --password abc123 --username root
 #### Install a systemd service
 > Run ```dotnet deploy publish``` command will auto restart service when system service installed 
 ```
-dotnet deploy service install --host 127.0.0.1 --password abc123 --username root
+dotnet deploy systemd install --host 127.0.0.1 --password abc123 --username root
 ```
 
 ## Use appsettings.json and user-secrets simplify command options
@@ -52,22 +52,27 @@ dotnet deploy publish
 dotnet deploy publish
 ```
 
-### service
+### info
+```
+dotnet deploy info
+```
+
+### systemd
 install systemd service
 ```
-dotnet deploy service install
+dotnet deploy systemd install
 ```
 uninstall systemd service
 ```
-dotnet deploy service uninstall
+dotnet deploy systemd uninstall
 ```
 restart systemd service
 ```
-dotnet deploy service restart
+dotnet deploy systemd restart
 ```
 get systemd service status
 ```
-dotnet deploy service status
+dotnet deploy systemd status
 ```
 
 ## FAQ
