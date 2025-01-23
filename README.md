@@ -111,5 +111,6 @@ Options:
   --password      SSH password
   --private-key   SSH private key
   --project       Project path
+  --include-files  Copy the specified project file or directory to output directory
   -?, -h, --help  Show help and usage information
 ```

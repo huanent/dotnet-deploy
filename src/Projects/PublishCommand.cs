@@ -49,12 +49,13 @@ public class PublishCommand : BaseCommand, ICommand
         }
     }
 
-    private async Task PublishAsync(string host, Project project, ParseResult parseResult, CancellationToken token)
+    private static async Task PublishAsync(string host, Project project, ParseResult parseResult, CancellationToken token)
     {
-        using var server = new Server(host,parseResult, project.Options.Get(host));
+        var options = project.Options.Get(host);
+        using var server = new Server(host, parseResult, options);
         await server.InitializeAsync(token);
         var publishPath = await PublishAsync(project, server, token);
-        var includeFiles = parseResult.GetValue<string[]>(Constants.INCLUDE_FILES_PARAMETER);
+        var includeFiles = parseResult.GetValue<string[]>(Constants.INCLUDE_FILES_PARAMETER) ?? options.IncludeFiles;
         if (includeFiles != null) IncludeFiles(project, publishPath, includeFiles);
         var archivePath = await CompressAsync(project, publishPath, token);
         await UploadAsync(project.AssemblyName, server, archivePath, token);
