@@ -28,6 +28,7 @@ public class Project : IDisposable
         assemblyName = await Executor.RunAsync(
             "dotnet",
             ["msbuild", CsprojFile, "-getProperty:AssemblyName"],
+            RootDirectory,
              token
         );
 
@@ -39,6 +40,7 @@ public class Project : IDisposable
         var userSecretId = await Executor.RunAsync(
             "dotnet",
             ["msbuild", CsprojFile, "-getProperty:UserSecretsId"],
+            RootDirectory,
             token
         );
 

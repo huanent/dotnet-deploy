@@ -4,11 +4,12 @@ namespace DotnetDeploy.Infrastructure;
 
 public static class Executor
 {
-    public static async Task<string?> RunAsync(string program, IEnumerable<string> args, CancellationToken token = default)
+    public static async Task<string?> RunAsync(string program, IEnumerable<string> args, string cwd, CancellationToken token = default)
     {
         var (response, error) = await SimpleExec.Command.ReadAsync(
            program,
            args,
+           workingDirectory: cwd,
            cancellationToken: token
        );
 
@@ -16,7 +17,7 @@ public static class Executor
         return response?.Trim();
     }
 
-    public static async Task RunAsync(string command, CancellationToken token = default)
+    public static async Task RunAsync(string command, string cwd, CancellationToken token = default)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {

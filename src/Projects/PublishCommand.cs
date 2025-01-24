@@ -60,7 +60,7 @@ public class PublishCommand : BaseCommand, ICommand
         if (!string.IsNullOrWhiteSpace(options.BeforeCommand))
         {
             Console.WriteLine($"Running before command '{options.BeforeCommand}'");
-            await Executor.RunAsync(options.BeforeCommand, token);
+            await Executor.RunAsync(options.BeforeCommand, project.RootDirectory, token);
         }
 
         var publishPath = await PublishAsync(project, server, token);
@@ -107,6 +107,7 @@ public class PublishCommand : BaseCommand, ICommand
         await Executor.RunAsync(
             "dotnet",
             ["publish", "-o", publishPath, "-r", rid, "--self-contained", project.RootDirectory],
+            project.RootDirectory,
             token
         );
 
