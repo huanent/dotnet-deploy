@@ -8,7 +8,7 @@ namespace DotnetDeploy.Systemd;
 public class SystemdCommand : CliCommand, ICommand
 {
     public SystemdCommand(IEnumerable<ISystemdCommand> commands) : base(
-        "systemd", "Manager project remote host systemd service")
+        "systemd", "Manager project systemd service on remote host")
     {
         foreach (var command in commands)
         {

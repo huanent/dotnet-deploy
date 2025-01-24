@@ -89,8 +89,27 @@ public class PublishCommand : BaseCommand, ICommand
             await Executor.RunAsync(afterCommand, project.RootDirectory, token);
         }
 
+        Console.WriteLine($"Compressing published files");
         var archivePath = await CompressAsync(project, publishPath, token);
-        await UploadAsync(project.AssemblyName, server, archivePath, token);
+        Console.WriteLine($"Compressed");
+        var remoteAppDirectory = Path.Combine(Server.RootDirectory, project.AssemblyName);
+        var remoteArchiveFile = Path.Combine(Server.RootDirectory, $"{project.AssemblyName}.tar.gz");
+        Console.WriteLine($"Uploading compressed file to remote host");
+        await server.UploadFileAsync(archivePath, remoteArchiveFile, token);
+        Console.WriteLine($"Uploaded");
+
+        await server.Connection.SftpClient.CreateDirectoryAsync(remoteAppDirectory, true, cancellationToken: token);
+
+        try
+        {
+            await server.ExecuteAsync($"sudo systemctl stop {project.AssemblyName}", token);
+            Console.WriteLine($"Service {project.AssemblyName} stopped");
+        }
+        catch { }
+
+        Console.WriteLine($"Decompressing on remote host");
+        await server.ExecuteAsync($"sudo tar --overwrite -xzvf {remoteArchiveFile} -C {remoteAppDirectory}", token);
+        Console.WriteLine($"Decompressed");
 
         try
         {
@@ -99,19 +118,11 @@ public class PublishCommand : BaseCommand, ICommand
         }
         catch
         {
-            Console.WriteLine($"Service {project.AssemblyName} not found,install systemd a service is recommend!");
+            Console.WriteLine($"""
+            Service {project.AssemblyName} not found!
+            Install a systemd service is recommend, see 'dotnet deploy systemd -h'
+            """);
         }
-    }
-
-    private static async Task UploadAsync(string assemblyName, Server server, string archivePath, CancellationToken token)
-    {
-        Console.WriteLine($"Uploading publish files to server");
-        var remoteAppDirectory = Path.Combine(Server.RootDirectory, assemblyName);
-        var remoteArchiveFile = Path.Combine(Server.RootDirectory, $"{assemblyName}.tar.gz");
-        await server.UploadFileAsync(archivePath, remoteArchiveFile, token);
-        await server.Connection.SftpClient.CreateDirectoryAsync(remoteAppDirectory, true, cancellationToken: token);
-        await server.ExecuteAsync($"sudo tar --overwrite -xzvf {remoteArchiveFile} -C {remoteAppDirectory}", token);
-        Console.WriteLine($"Publish files uploaded!");
     }
 
     private static async Task<string> PublishAsync(Project project, Server server, CancellationToken token)
