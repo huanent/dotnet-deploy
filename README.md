@@ -112,5 +112,6 @@ Options:
   --private-key   SSH private key
   --project       Project path
   --include-files  Copy the specified project file or directory to output directory
+  --all-hosts      Publish all hosts
   -?, -h, --help  Show help and usage information
 ```
