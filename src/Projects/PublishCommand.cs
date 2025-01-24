@@ -54,15 +54,26 @@ public class PublishCommand : BaseCommand, ICommand
         var options = project.Options.Get(host);
         using var server = new Server(host, parseResult, options);
         await server.InitializeAsync(token);
+
+        if (!string.IsNullOrWhiteSpace(options.BeforeCommand))
+        {
+            Console.WriteLine($"Running before command '{options.BeforeCommand}'");
+            await Executor.RunAsync(options.BeforeCommand, token);
+        }
+
         var publishPath = await PublishAsync(project, server, token);
         var includeFiles = parseResult.GetValue<string[]>(Constants.INCLUDE_FILES_PARAMETER) ?? options.IncludeFiles;
-        if (includeFiles != null) IncludeFiles(project, publishPath, includeFiles);
+
+        if (includeFiles != null)
+        {
+            IncludeFiles(project, publishPath, includeFiles);
+        }
         var archivePath = await CompressAsync(project, publishPath, token);
         await UploadAsync(project.AssemblyName, server, archivePath, token);
 
         try
         {
-            await server.ExecuteAsync($"systemctl restart {project.AssemblyName}", token);
+            await server.ExecuteAsync($"sudo systemctl restart {project.AssemblyName}", token);
             Console.WriteLine($"Service {project.AssemblyName} restarted");
         }
         catch
@@ -78,19 +89,20 @@ public class PublishCommand : BaseCommand, ICommand
         var remoteArchiveFile = Path.Combine(Server.RootDirectory, $"{assemblyName}.tar.gz");
         await server.UploadFileAsync(archivePath, remoteArchiveFile, token);
         await server.SftpClient.CreateDirectoryAsync(remoteAppDirectory, true, cancellationToken: token);
-        await server.ExecuteAsync($"tar --overwrite -xzvf {remoteArchiveFile} -C {remoteAppDirectory}", token);
+        await server.ExecuteAsync($"sudo tar --overwrite -xzvf {remoteArchiveFile} -C {remoteAppDirectory}", token);
         Console.WriteLine($"Publish files uploaded!");
     }
 
     private static async Task<string> PublishAsync(Project project, Server server, CancellationToken token)
     {
         var publishPath = Path.Combine(project.WorkDirectory, "publish");
+
         if (Directory.Exists(publishPath)) Directory.Delete(publishPath, true);
 
-        Console.WriteLine($"publishing project {project.AssemblyName}");
         var rid = GetRid(server.Arch);
+        Console.WriteLine($"Publishing project '{project.AssemblyName}' RID '{rid}'");
 
-        await ProcessHelper.RunCommandAsync(
+        await Executor.RunAsync(
             "dotnet",
             ["publish", "-o", publishPath, "-r", rid, "--self-contained", project.RootDirectory],
             token
@@ -114,14 +126,13 @@ public class PublishCommand : BaseCommand, ICommand
         var archivePath = Path.Combine(project.WorkDirectory, "publish.tar.gz");
         if (File.Exists(archivePath)) File.Delete(archivePath);
 
+        Console.WriteLine($"Compressing publish files");
         using (var archiveStream = File.OpenWrite(archivePath))
         {
             using var gzipStream = new GZipStream(archiveStream, CompressionLevel.SmallestSize);
             await TarFile.CreateFromDirectoryAsync(publishPath, gzipStream, false, token);
         }
-        ;
 
-        Console.WriteLine($"Project {project.AssemblyName} published!");
         return archivePath;
     }
 
@@ -131,6 +142,8 @@ public class PublishCommand : BaseCommand, ICommand
         {
             if (Path.IsPathRooted(path)) throw new Exception($"Can not include absolute path '{path}'");
             var sourcePath = Path.Combine(project.RootDirectory, path);
+            Console.WriteLine($"Include file '{sourcePath}'");
+
             if (File.Exists(sourcePath))
             {
                 var targetPath = Path.Combine(publishPath, path);

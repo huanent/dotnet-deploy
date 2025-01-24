@@ -69,7 +69,7 @@ public class Server : IDisposable
             ConnectTimeout = TimeSpan.FromSeconds(30),
             AutoConnect = false,
             UpdateKnownHostsFileAfterAuthentication = true,
-            HostAuthentication = (knownHostResult, connectionInfo, token) => ValueTask.FromResult(true)
+            HostAuthentication = (knownHostResult, connectionInfo, token) => ValueTask.FromResult(true),
         };
 
         Console.WriteLine($"Connecting server {host} with {username}");
@@ -117,7 +117,7 @@ public class Server : IDisposable
     {
         try
         {
-            await ExecuteAsync($"test -f {path}", token);
+            await ExecuteAsync($"sudo test -f {path}", token);
             return true;
         }
         catch
@@ -130,7 +130,7 @@ public class Server : IDisposable
     {
         try
         {
-            await ExecuteAsync($"test -d {path}", token);
+            await ExecuteAsync($"sudo test -d {path}", token);
             return true;
         }
         catch

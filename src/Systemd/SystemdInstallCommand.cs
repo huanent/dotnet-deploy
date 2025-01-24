@@ -30,8 +30,8 @@ public class SystemdInstallCommand : BaseCommand, ISystemdCommand
         var service = new SystemdService(project);
         File.WriteAllText(servicePath, service.ToString());
         await server.UploadFileAsync(servicePath, remoteServiceFile, token);
-        await server.ExecuteAsync($"systemctl enable {remoteServiceFile}", token);
-        await server.ExecuteAsync($"systemctl start {serviceName}", token);
+        await server.ExecuteAsync($"sudo systemctl enable {remoteServiceFile}", token);
+        await server.ExecuteAsync($"sudo systemctl start {serviceName}", token);
         Console.WriteLine($"Service {project.AssemblyName} installed!");
     }
 }

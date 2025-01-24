@@ -1,3 +1,4 @@
+using DotnetDeploy.Infrastructure;
 using DotnetDeploy.Systemd;
 using Microsoft.Extensions.Configuration;
 
@@ -24,18 +25,18 @@ public class Project : IDisposable
 
     public async Task InitializeAsync(CancellationToken token)
     {
-        assemblyName = ProcessHelper.RunCommandAsync(
+        assemblyName = await Executor.RunAsync(
             "dotnet",
             ["msbuild", CsprojFile, "-getProperty:AssemblyName"],
-            token
-        ).Result;
+             token
+        );
 
         await BindOptionsAsync(token);
     }
 
     private async Task BindOptionsAsync(CancellationToken token)
     {
-        var userSecretId = await ProcessHelper.RunCommandAsync(
+        var userSecretId = await Executor.RunAsync(
             "dotnet",
             ["msbuild", CsprojFile, "-getProperty:UserSecretsId"],
             token
@@ -55,7 +56,7 @@ public class Project : IDisposable
         {
             foreach (var item in options.Hosts)
             {
-                var hostSection= deploy.GetSection($"Hosts:{item.Key}");
+                var hostSection = deploy.GetSection($"Hosts:{item.Key}");
                 BindEnvironment(hostSection, item.Value.Systemd);
             }
         }

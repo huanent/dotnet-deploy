@@ -25,7 +25,7 @@ public class SystemdStatusCommand : BaseCommand, ISystemdCommand
         using var server = new Server(host, parseResult, options);
         await server.InitializeAsync(token);
         var serviceName = $"{project.AssemblyName}.service";
-        var output = await server.ExecuteAsync($"systemctl status {serviceName} --no-pager -l", token);
+        var output = await server.ExecuteAsync($"sudo systemctl status {serviceName} --no-pager -l", token);
         Console.WriteLine(output);
     }
 }

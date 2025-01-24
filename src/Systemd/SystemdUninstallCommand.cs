@@ -30,7 +30,7 @@ public class SystemdUninstallCommand : BaseCommand, ISystemdCommand
 
         try
         {
-            await server.ExecuteAsync($"systemctl stop {serviceName}", token);
+            await server.ExecuteAsync($"sudo systemctl stop {serviceName}", token);
         }
         catch
         {
@@ -39,7 +39,7 @@ public class SystemdUninstallCommand : BaseCommand, ISystemdCommand
 
         try
         {
-            await server.ExecuteAsync($"systemctl disable {serviceName}", token);
+            await server.ExecuteAsync($"sudo systemctl disable {serviceName}", token);
         }
         catch
         {

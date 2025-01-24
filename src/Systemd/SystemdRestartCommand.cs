@@ -25,7 +25,7 @@ public class SystemdRestartCommand : BaseCommand, ISystemdCommand
         using var server = new Server(host, parseResult, options);
         await server.InitializeAsync(token);
         var serviceName = $"{project.AssemblyName}.service";
-        await server.ExecuteAsync($"systemctl restart {serviceName}", token);
+        await server.ExecuteAsync($"sudo systemctl restart {serviceName}", token);
         Console.WriteLine($"Service {project.AssemblyName} restarted!");
     }
 }
