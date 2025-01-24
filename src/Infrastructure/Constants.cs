@@ -8,4 +8,5 @@ public class Constants
     public const string PRIVATE_KEY_PARAMETER = "--private-key";
     public const string PROJECT_PARAMETER = "--project";
     public const string INCLUDE_FILES_PARAMETER = "--include-files";
+    public const string ALL_HOSTS_PARAMETER = "--all-hosts";
     }

@@ -17,6 +17,11 @@ public class PublishCommand : BaseCommand, ICommand
         {
             Description = "Copy the specified project file or directory to output directory",
         });
+
+        Options.Add(new CliOption<bool?>(Constants.ALL_HOSTS_PARAMETER)
+        {
+            Description = "Publish all hosts",
+        });
     }
 
     protected override async Task ExecuteAsync(ParseResult parseResult, CancellationToken token)
@@ -24,22 +29,19 @@ public class PublishCommand : BaseCommand, ICommand
         var projectPath = parseResult.GetValue<string>(Constants.PROJECT_PARAMETER);
         using var project = new Project(projectPath);
         await project.InitializeAsync(token);
-        var host = parseResult.GetValue<string>(Constants.HOST_PARAMETER);
+        var host = parseResult.GetValue<string>(Constants.HOST_PARAMETER) ?? project.Options.Host;
         HashSet<string> hosts = [];
 
         if (!string.IsNullOrWhiteSpace(host))
         {
             hosts.Add(host);
         }
-        else
+
+        if ((parseResult.GetValue<bool?>(Constants.ALL_HOSTS_PARAMETER) ?? false) && project.Options.Hosts != null)
         {
-            if (!string.IsNullOrWhiteSpace(project.Options.Host)) hosts.Add(project.Options.Host);
-            if (project.Options.Hosts != null)
+            foreach (var item in project.Options.Hosts)
             {
-                foreach (var item in project.Options.Hosts)
-                {
-                    hosts.Add(item.Key);
-                }
+                hosts.Add(item.Key);
             }
         }
 
