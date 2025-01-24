@@ -27,8 +27,7 @@ public static class Executor
               cancellationToken: token
             );
         }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
             await SimpleExec.Command.RunAsync(
              "zsh",
@@ -36,8 +35,7 @@ public static class Executor
              cancellationToken: token
            );
         }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        else
         {
             await SimpleExec.Command.RunAsync(
              "bash",

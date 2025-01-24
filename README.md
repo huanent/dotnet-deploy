@@ -113,5 +113,7 @@ Options:
   --project       Project path
   --include-files  Copy the specified project file or directory to output directory
   --all-hosts      Publish all hosts
+  --before-command  Run command before dotnet publish
+  --after-command   Run command after dotnet publish
   -?, -h, --help  Show help and usage information
 ```
