@@ -19,6 +19,7 @@ public class DeployOptions : HostDeployOptions
             UserName = subHost?.UserName ?? UserName,
             IncludeFiles = subHost?.IncludeFiles ?? IncludeFiles,
             BeforeCommand = subHost?.BeforeCommand ?? BeforeCommand,
+            AfterCommand = subHost?.AfterCommand ?? AfterCommand,
             Systemd = subHost?.Systemd ?? Systemd
         };
 
@@ -33,5 +34,6 @@ public class HostDeployOptions
     public string? PrivateKey { get; init; }
     public string[]? IncludeFiles { get; set; }
     public string? BeforeCommand { get; set; }
+    public string? AfterCommand { get; set; }
     public SystemdService? Systemd { get; set; }
 }

@@ -22,6 +22,16 @@ public class PublishCommand : BaseCommand, ICommand
         {
             Description = "Publish all hosts",
         });
+
+        Options.Add(new CliOption<bool?>(Constants.BEFORE_COMMAND_PARAMETER)
+        {
+            Description = "Run command before dotnet publish",
+        });
+
+        Options.Add(new CliOption<bool?>(Constants.AFTER_COMMAND_PARAMETER)
+        {
+            Description = "Run command after dotnet publish",
+        });
     }
 
     protected override async Task ExecuteAsync(ParseResult parseResult, CancellationToken token)
@@ -57,19 +67,28 @@ public class PublishCommand : BaseCommand, ICommand
         using var server = new Server(host, parseResult, options);
         await server.InitializeAsync(token);
 
-        if (!string.IsNullOrWhiteSpace(options.BeforeCommand))
+        var beforeCommand = parseResult.GetValue<string?>(Constants.BEFORE_COMMAND_PARAMETER) ?? options.BeforeCommand;
+        if (!string.IsNullOrWhiteSpace(beforeCommand))
         {
-            Console.WriteLine($"Running before command '{options.BeforeCommand}'");
-            await Executor.RunAsync(options.BeforeCommand, project.RootDirectory, token);
+            Console.WriteLine($"Running before command '{beforeCommand}'");
+            await Executor.RunAsync(beforeCommand, project.RootDirectory, token);
         }
 
         var publishPath = await PublishAsync(project, server, token);
-        var includeFiles = parseResult.GetValue<string[]>(Constants.INCLUDE_FILES_PARAMETER) ?? options.IncludeFiles;
 
+        var includeFiles = parseResult.GetValue<string[]>(Constants.INCLUDE_FILES_PARAMETER) ?? options.IncludeFiles;
         if (includeFiles != null)
         {
             IncludeFiles(project, publishPath, includeFiles);
         }
+
+        var afterCommand = parseResult.GetValue<string?>(Constants.AFTER_COMMAND_PARAMETER) ?? options.AfterCommand;
+        if (!string.IsNullOrWhiteSpace(afterCommand))
+        {
+            Console.WriteLine($"Running after command '{afterCommand}'");
+            await Executor.RunAsync(afterCommand, project.RootDirectory, token);
+        }
+
         var archivePath = await CompressAsync(project, publishPath, token);
         await UploadAsync(project.AssemblyName, server, archivePath, token);
 
