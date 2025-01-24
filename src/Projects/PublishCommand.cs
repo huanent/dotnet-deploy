@@ -2,7 +2,7 @@ using System.CommandLine;
 using System.Formats.Tar;
 using System.IO.Compression;
 using DotnetDeploy.Infrastructure;
-using DotnetDeploy.Systemd;
+using DotnetDeploy.Servers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotnetDeploy.Projects;
@@ -109,7 +109,7 @@ public class PublishCommand : BaseCommand, ICommand
         var remoteAppDirectory = Path.Combine(Server.RootDirectory, assemblyName);
         var remoteArchiveFile = Path.Combine(Server.RootDirectory, $"{assemblyName}.tar.gz");
         await server.UploadFileAsync(archivePath, remoteArchiveFile, token);
-        await server.SftpClient.CreateDirectoryAsync(remoteAppDirectory, true, cancellationToken: token);
+        await server.Connection.SftpClient.CreateDirectoryAsync(remoteAppDirectory, true, cancellationToken: token);
         await server.ExecuteAsync($"sudo tar --overwrite -xzvf {remoteArchiveFile} -C {remoteAppDirectory}", token);
         Console.WriteLine($"Publish files uploaded!");
     }

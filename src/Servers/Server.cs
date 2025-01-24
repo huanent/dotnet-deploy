@@ -3,20 +3,18 @@ using DotnetDeploy.Infrastructure;
 using DotnetDeploy.Projects;
 using Tmds.Ssh;
 
-namespace DotnetDeploy.Systemd;
+namespace DotnetDeploy.Servers;
 
 public class Server : IDisposable
 {
-    private SshClient? sshClient;
-    private SftpClient? sftpClient;
     private string? arch;
     private readonly string? host;
     public readonly string? username;
-    public string? password;
-    public string? privateKey;
+    private readonly string? password;
+    private readonly string? privateKey;
+    private ServerConnection connection;
     public static string RootDirectory => "/var/dotnet-apps";
-    public SshClient SshClient => sshClient ?? throw new Exception("Server not Initialized");
-    public SftpClient SftpClient => sftpClient ?? throw new Exception("Server not Initialized");
+    public ServerConnection Connection => connection ?? throw new Exception("Server not Initialized");
     public string Arch => arch ?? throw new Exception("Server not Initialized");
 
     public Server(string host, ParseResult parseResult, HostDeployOptions options)
@@ -49,6 +47,7 @@ public class Server : IDisposable
 
     public async Task InitializeAsync(CancellationToken token)
     {
+        arch = await ExecuteAsync("arch", token);
         if (string.IsNullOrWhiteSpace(host)) throw new ArgumentNullException(nameof(host));
 
         var credentials = new List<Credential>();
@@ -62,22 +61,10 @@ public class Server : IDisposable
             credentials.Add(new PasswordCredential(password));
         }
 
-        var sshSettings = new SshClientSettings(host)
-        {
-            UserName = username!,
-            Credentials = credentials,
-            ConnectTimeout = TimeSpan.FromSeconds(30),
-            AutoConnect = false,
-            UpdateKnownHostsFileAfterAuthentication = true,
-            HostAuthentication = (knownHostResult, connectionInfo, token) => ValueTask.FromResult(true),
-        };
-
         Console.WriteLine($"Connecting server {host} with {username}");
-        sshClient = new SshClient(sshSettings);
-        await SshClient.ConnectAsync(token);
+        connection = new ServerConnection(host, username ?? "root", credentials);
+        await connection.ConnectAsync(token);
         Console.WriteLine($"Server {host} connected!");
-        sftpClient = await SshClient.OpenSftpClientAsync(token);
-        arch = await ExecuteAsync("arch", token);
     }
 
     public async Task UploadFileAsync(string localPath, string remotePath, CancellationToken token)
@@ -87,22 +74,22 @@ public class Server : IDisposable
 
         if (!folderExist)
         {
-            await SftpClient.CreateDirectoryAsync(folder!, true, cancellationToken: token);
+            await Connection.SftpClient.CreateDirectoryAsync(folder!, true, cancellationToken: token);
         }
 
         var fileExist = await ExistFileAsync(remotePath, token);
 
         if (fileExist)
         {
-            await SftpClient.DeleteFileAsync(remotePath, token);
+            await Connection.SftpClient.DeleteFileAsync(remotePath, token);
         }
 
-        await SftpClient.UploadFileAsync(localPath, remotePath, token);
+        await Connection.SftpClient.UploadFileAsync(localPath, remotePath, token);
     }
 
     public async Task<string?> ExecuteAsync(string command, CancellationToken token)
     {
-        var process = await SshClient.ExecuteAsync(command, cancellationToken: token);
+        var process = await Connection.SshClient.ExecuteAsync(command, cancellationToken: token);
         var (output, error) = await process.ReadToEndAsStringAsync();
 
         if (process.ExitCode != 0)
@@ -141,6 +128,6 @@ public class Server : IDisposable
 
     public void Dispose()
     {
-        SshClient?.Dispose();
+        Connection?.Dispose();
     }
 }

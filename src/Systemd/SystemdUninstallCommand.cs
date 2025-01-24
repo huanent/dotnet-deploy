@@ -1,6 +1,7 @@
 using System.CommandLine;
 using DotnetDeploy.Infrastructure;
 using DotnetDeploy.Projects;
+using DotnetDeploy.Servers;
 using DotnetDeploy.Systemd;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -46,7 +47,7 @@ public class SystemdUninstallCommand : BaseCommand, ISystemdCommand
             Console.WriteLine($"Service {project.AssemblyName} not enabled!");
         }
 
-        await server.SftpClient.DeleteFileAsync(remoteServiceFile, token);
+        await server.Connection.SftpClient.DeleteFileAsync(remoteServiceFile, token);
         Console.WriteLine($"Service {project.AssemblyName} uninstalled!");
     }
 }

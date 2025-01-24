@@ -1,6 +1,7 @@
 using System.CommandLine;
 using DotnetDeploy.Infrastructure;
 using DotnetDeploy.Projects;
+using DotnetDeploy.Servers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotnetDeploy.Systemd;
