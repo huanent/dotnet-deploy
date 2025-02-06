@@ -21,7 +21,7 @@ public class SystemdService : Dictionary<string, Dictionary<string, object>?>
       Service = new Dictionary<string, object>{
          {"WorkingDirectory", remoteAppDirectory},
          {"ExecStart", remoteAppFile},
-         {"Restart", "always"},
+         { "Restart", "always"},
          {"RestartSec", "10"},
          {"KillSignal", "SIGINT"},
          {"SyslogIdentifier", project.AssemblyName},
@@ -43,6 +43,8 @@ public class SystemdService : Dictionary<string, Dictionary<string, object>?>
    public Dictionary<string, object>? Unit { get => base[nameof(Unit)]; set => base[nameof(Unit)] = value; }
    public Dictionary<string, object>? Service { get => base[nameof(Service)]; set => base[nameof(Service)] = value; }
    public Dictionary<string, object>? Install { get => base[nameof(Install)]; set => base[nameof(Install)] = value; }
+
+   public string User { get; set; }
 
    private void Merge(SystemdService? service)
    {

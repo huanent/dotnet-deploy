@@ -27,7 +27,6 @@ public class SystemdUninstallCommand : BaseCommand, ISystemdCommand
         using var server = new Server(host, parseResult, options);
         await server.InitializeAsync(token);
         var serviceName = $"{project.AssemblyName}.service";
-        var remoteServiceFile = Path.Combine("/etc/systemd/system", serviceName);
 
         try
         {
@@ -47,7 +46,8 @@ public class SystemdUninstallCommand : BaseCommand, ISystemdCommand
             Console.WriteLine($"Service {project.AssemblyName} not enabled!");
         }
 
-        await server.Connection.SftpClient.DeleteFileAsync(remoteServiceFile, token);
+        var serviceFilePath = Path.Combine(Server.RootDirectory, serviceName);
+        await server.Connection.SftpClient.DeleteFileAsync(serviceFilePath, token);
         Console.WriteLine($"Service {project.AssemblyName} uninstalled!");
     }
 }

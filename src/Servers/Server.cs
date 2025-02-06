@@ -9,13 +9,14 @@ public class Server : IDisposable
 {
     private string? arch;
     private readonly string? host;
-    public readonly string? username;
+    private readonly string? username;
     private readonly string? password;
     private readonly string? privateKey;
     private ServerConnection connection;
     public static string RootDirectory => "/var/dotnet-apps";
     public ServerConnection Connection => connection ?? throw new Exception("Server not Initialized");
     public string Arch => arch ?? throw new Exception("Server not Initialized");
+    public string Username => username;
 
     public Server(string host, ParseResult parseResult, HostDeployOptions options)
     {
@@ -47,7 +48,6 @@ public class Server : IDisposable
 
     public async Task InitializeAsync(CancellationToken token)
     {
-        arch = await ExecuteAsync("arch", token);
         if (string.IsNullOrWhiteSpace(host)) throw new ArgumentNullException(nameof(host));
 
         var credentials = new List<Credential>();
@@ -65,18 +65,17 @@ public class Server : IDisposable
         connection = new ServerConnection(host, username ?? "root", credentials);
         await connection.ConnectAsync(token);
         Console.WriteLine($"Server {host} connected!");
+        arch = await ExecuteAsync("arch", token);
+        if (!await ExistFolderAsync(RootDirectory, token))
+        {
+            await connection.SshClient.ExecuteAsync($"sudo mkdir '{RootDirectory}'", token);
+            await connection.SshClient.ExecuteAsync($"sudo chown {Username} '{RootDirectory}'", token);
+        }
     }
 
-    public async Task UploadFileAsync(string localPath, string remotePath, CancellationToken token)
+    public async Task<string> UploadFileAsync(string localPath, string newName, CancellationToken token)
     {
-        var folder = Path.GetDirectoryName(remotePath);
-        var folderExist = await ExistFolderAsync(folder, token);
-
-        if (!folderExist)
-        {
-            await Connection.SftpClient.CreateDirectoryAsync(folder!, true, cancellationToken: token);
-        }
-
+        var remotePath = Path.Combine(RootDirectory, newName);
         var fileExist = await ExistFileAsync(remotePath, token);
 
         if (fileExist)
@@ -85,6 +84,7 @@ public class Server : IDisposable
         }
 
         await Connection.SftpClient.UploadFileAsync(localPath, remotePath, token);
+        return remotePath;
     }
 
     public async Task<string?> ExecuteAsync(string command, CancellationToken token)
@@ -128,6 +128,6 @@ public class Server : IDisposable
 
     public void Dispose()
     {
-        Connection?.Dispose();
+        connection?.Dispose();
     }
 }

@@ -95,7 +95,7 @@ public class PublishCommand : BaseCommand, ICommand
         var remoteAppDirectory = Path.Combine(Server.RootDirectory, project.AssemblyName);
         var remoteArchiveFile = Path.Combine(Server.RootDirectory, $"{project.AssemblyName}.tar.gz");
         Console.WriteLine($"Uploading compressed file to remote host");
-        await server.UploadFileAsync(archivePath, remoteArchiveFile, token);
+        await server.UploadFileAsync(archivePath, $"{project.AssemblyName}.tar.gz", token);
         Console.WriteLine($"Uploaded");
 
         await server.Connection.SftpClient.CreateDirectoryAsync(remoteAppDirectory, true, cancellationToken: token);
@@ -159,7 +159,6 @@ public class PublishCommand : BaseCommand, ICommand
         var archivePath = Path.Combine(project.WorkDirectory, "publish.tar.gz");
         if (File.Exists(archivePath)) File.Delete(archivePath);
 
-        Console.WriteLine($"Compressing publish files");
         using (var archiveStream = File.OpenWrite(archivePath))
         {
             using var gzipStream = new GZipStream(archiveStream, CompressionLevel.SmallestSize);
