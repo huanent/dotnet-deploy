@@ -18,11 +18,6 @@ public class PublishCommand : BaseCommand, ICommand
             Description = "Copy the specified project file or directory to output directory",
         });
 
-        Options.Add(new CliOption<bool?>(Constants.ALL_HOSTS_PARAMETER)
-        {
-            Description = "Publish all hosts",
-        });
-
         Options.Add(new CliOption<bool?>(Constants.BEFORE_COMMAND_PARAMETER)
         {
             Description = "Run command before dotnet publish",
@@ -34,59 +29,28 @@ public class PublishCommand : BaseCommand, ICommand
         });
     }
 
-    protected override async Task ExecuteAsync(ParseResult parseResult, CancellationToken token)
+    protected override async Task ExecuteAsync(HostDeployOptions options, Project project, CancellationToken token)
     {
-        var projectPath = parseResult.GetValue<string>(Constants.PROJECT_PARAMETER);
-        using var project = new Project(projectPath);
-        await project.InitializeAsync(token);
-        var host = parseResult.GetValue<string>(Constants.HOST_PARAMETER) ?? project.Options.Host;
-        HashSet<string> hosts = [];
-
-        if (!string.IsNullOrWhiteSpace(host))
-        {
-            hosts.Add(host);
-        }
-
-        if ((parseResult.GetValue<bool?>(Constants.ALL_HOSTS_PARAMETER) ?? false) && project.Options.Hosts != null)
-        {
-            foreach (var item in project.Options.Hosts)
-            {
-                hosts.Add(item.Key);
-            }
-        }
-
-        foreach (var item in hosts)
-        {
-            await PublishAsync(item, project, parseResult, token);
-        }
-    }
-
-    private static async Task PublishAsync(string host, Project project, ParseResult parseResult, CancellationToken token)
-    {
-        var options = project.Options.Get(host);
-        using var server = new Server(host, parseResult, options);
+        using var server = new Server(options);
         await server.InitializeAsync(token);
 
-        var beforeCommand = parseResult.GetValue<string?>(Constants.BEFORE_COMMAND_PARAMETER) ?? options.BeforeCommand;
-        if (!string.IsNullOrWhiteSpace(beforeCommand))
+        if (!string.IsNullOrWhiteSpace(options.BeforeCommand))
         {
-            Console.WriteLine($"Running before command '{beforeCommand}'");
-            await Executor.RunAsync(beforeCommand, project.RootDirectory, token);
+            Console.WriteLine($"Running before command '{options.BeforeCommand}'");
+            await Executor.RunAsync(options.BeforeCommand, project.RootDirectory, token);
         }
 
         var publishPath = await PublishAsync(project, server, token);
 
-        var includeFiles = parseResult.GetValue<string[]>(Constants.INCLUDE_FILES_PARAMETER) ?? options.IncludeFiles;
-        if (includeFiles != null)
+        if (options.IncludeFiles != null)
         {
-            IncludeFiles(project, publishPath, includeFiles);
+            IncludeFiles(project, publishPath, options.IncludeFiles);
         }
 
-        var afterCommand = parseResult.GetValue<string?>(Constants.AFTER_COMMAND_PARAMETER) ?? options.AfterCommand;
-        if (!string.IsNullOrWhiteSpace(afterCommand))
+        if (!string.IsNullOrWhiteSpace(options.AfterCommand))
         {
-            Console.WriteLine($"Running after command '{afterCommand}'");
-            await Executor.RunAsync(afterCommand, project.RootDirectory, token);
+            Console.WriteLine($"Running after command '{options.AfterCommand}'");
+            await Executor.RunAsync(options.AfterCommand, project.RootDirectory, token);
         }
 
         Console.WriteLine($"Compressing published files");

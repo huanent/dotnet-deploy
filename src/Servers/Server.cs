@@ -5,66 +5,33 @@ using Tmds.Ssh;
 
 namespace DotnetDeploy.Servers;
 
-public class Server : IDisposable
+public class Server(HostDeployOptions options) : IDisposable
 {
     private string? arch;
-    private readonly string? host;
-    private readonly string? username;
-    private readonly string? password;
-    private readonly string? privateKey;
     private ServerConnection connection;
     public static string RootDirectory => "/var/dotnet-apps";
     public ServerConnection Connection => connection ?? throw new Exception("Server not Initialized");
     public string Arch => arch ?? throw new Exception("Server not Initialized");
-    public string Username => username;
-
-    public Server(string host, ParseResult parseResult, HostDeployOptions options)
-    {
-        this.host = host;
-
-        username = parseResult.GetValue<string>(Constants.USERNAME_PARAMETER);
-        if (string.IsNullOrWhiteSpace(username))
-        {
-            username = options.UserName;
-        }
-
-        if (string.IsNullOrWhiteSpace(username))
-        {
-            username = "root";
-        }
-
-        password = parseResult.GetValue<string>(Constants.PASSWORD_PARAMETER);
-        if (string.IsNullOrWhiteSpace(password))
-        {
-            password = options.Password;
-        }
-
-        privateKey = parseResult.GetValue<string>(Constants.PRIVATE_KEY_PARAMETER);
-        if (string.IsNullOrWhiteSpace(privateKey))
-        {
-            privateKey = options.PrivateKey;
-        }
-    }
+    public string Username => options.UserName;
 
     public async Task InitializeAsync(CancellationToken token)
     {
-        if (string.IsNullOrWhiteSpace(host)) throw new ArgumentNullException(nameof(host));
 
         var credentials = new List<Credential>();
 
-        if (!string.IsNullOrWhiteSpace(privateKey))
+        if (!string.IsNullOrWhiteSpace(options.PrivateKey))
         {
-            credentials.Add(new PrivateKeyCredential(privateKey, password));
+            credentials.Add(new PrivateKeyCredential(options.PrivateKey, options.Password));
         }
-        else if (!string.IsNullOrWhiteSpace(password))
+        else if (!string.IsNullOrWhiteSpace(options.Password))
         {
-            credentials.Add(new PasswordCredential(password));
+            credentials.Add(new PasswordCredential(options.Password));
         }
 
-        Console.WriteLine($"Connecting server {host} with {username}");
-        connection = new ServerConnection(host, username ?? "root", credentials);
+        Console.WriteLine($"Connecting server {options.Host} with {options.UserName}");
+        connection = new ServerConnection(options.Host, options.UserName, credentials);
         await connection.ConnectAsync(token);
-        Console.WriteLine($"Server {host} connected!");
+        Console.WriteLine($"Server {options.Host} connected!");
         arch = await ExecuteAsync("arch", token);
         if (!await ExistFolderAsync(RootDirectory, token))
         {
