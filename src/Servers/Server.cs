@@ -1,6 +1,5 @@
-using System.CommandLine;
-using DotnetDeploy.Infrastructure;
 using DotnetDeploy.Projects;
+using Microsoft.Extensions.Logging;
 using Tmds.Ssh;
 
 namespace DotnetDeploy.Servers;
@@ -16,7 +15,6 @@ public class Server(HostDeployOptions options) : IDisposable
 
     public async Task InitializeAsync(CancellationToken token)
     {
-
         var credentials = new List<Credential>();
 
         if (!string.IsNullOrWhiteSpace(options.PrivateKey))

@@ -12,7 +12,7 @@ public class InfoCommand : BaseCommand, ICommand
     public InfoCommand()
         : base("info", "Show Current deploy task info")
     {
-        Options.Add(new CliOption<string[]?>(Constants.INCLUDE_FILES_PARAMETER)
+        Options.Add(new Option<string[]?>(Constants.INCLUDE_FILES_PARAMETER)
         {
             Description = "Copy the specified project file or directory to output directory",
         });

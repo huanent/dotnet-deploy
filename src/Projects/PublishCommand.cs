@@ -13,17 +13,17 @@ public class PublishCommand : BaseCommand, ICommand
     public PublishCommand()
         : base("publish", "Publish project to remote host")
     {
-        Options.Add(new CliOption<string[]?>(Constants.INCLUDE_FILES_PARAMETER)
+        Options.Add(new Option<string[]?>(Constants.INCLUDE_FILES_PARAMETER)
         {
             Description = "Copy the specified project file or directory to output directory",
         });
 
-        Options.Add(new CliOption<bool?>(Constants.BEFORE_COMMAND_PARAMETER)
+        Options.Add(new Option<bool?>(Constants.BEFORE_COMMAND_PARAMETER)
         {
             Description = "Run command before dotnet publish",
         });
 
-        Options.Add(new CliOption<bool?>(Constants.AFTER_COMMAND_PARAMETER)
+        Options.Add(new Option<bool?>(Constants.AFTER_COMMAND_PARAMETER)
         {
             Description = "Run command after dotnet publish",
         });

@@ -18,8 +18,9 @@ public class ServerConnection(string host, string username, List<Credential> cre
             Credentials = credentials,
             ConnectTimeout = TimeSpan.FromSeconds(30),
             AutoConnect = false,
+            UserKnownHostsFilePaths = [],
             UpdateKnownHostsFileAfterAuthentication = true,
-            HostAuthentication = (knownHostResult, connectionInfo, token) => ValueTask.FromResult(true),
+            HostAuthentication = (context, token) => ValueTask.FromResult(true),
         };
 
         sshClient = new SshClient(sshSettings);
