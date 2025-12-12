@@ -1,103 +1,174 @@
-# Dotnet deploy tool
+# Dotnet Deploy Tool
 
-[![Nuget](https://img.shields.io/nuget/v/dotnet-deploy?label=nuget&style=for-the-badge)](https://www.nuget.org/packages/dotnet-deploy/)
+[![NuGet](https://img.shields.io/nuget/v/dotnet-deploy?label=nuget\&style=for-the-badge)](https://www.nuget.org/packages/dotnet-deploy/)
 
-## Install
-#### Install on global environment
-```
+A lightweight deployment tool that simplifies publishing .NET applications to remote Linux hosts over SSH and optionally managing their systemd services.
+
+---
+
+## Installation
+
+### Global installation
+
+```bash
 dotnet tool install dotnet-deploy -g
 ```
 
-#### Or install on local directory
-```
-cd ./you_solution_directory
+### Local installation
+
+```bash
+cd ./your_solution_directory
 dotnet new tool-manifest
 dotnet tool install dotnet-deploy
 ```
 
-## Quick start
-#### Publish to remote host 
-```
-dotnet deploy publish --host 127.0.0.1 --password abc123 --username root
-```
-#### Install a systemd service
-> Run ```dotnet deploy publish``` command will auto restart service when system service installed 
-```
-dotnet deploy systemd install --host 127.0.0.1 --password abc123 --username root
+---
+
+## Quick Start
+
+### Publish to a remote host
+
+```bash
+dotnet deploy publish --host 127.0.0.1 --username root --password abc123
 ```
 
-## Use appsettings.json and user-secrets simplify command options
-Define a ```Deploy``` section on configuration file
+### Install as a systemd service
+
+Running `dotnet deploy publish` will automatically restart the service if the systemd service is already installed.
+
+```bash
+dotnet deploy systemd install --host 127.0.0.1 --username root --password abc123
 ```
+
+---
+
+## Using appsettings.json and User Secrets to simplify commands
+
+You can avoid repeatedly typing host and authentication parameters by defining a `Deploy` section in your configuration.
+
+### appsettings.json
+
+```json
 {
-  ...
   "Deploy": {
     "Host": "127.0.0.1",
     "Username": "root"
   }
 }
 ```
-Use ```user-secrets``` protect host password
+
+### Protect password using User Secrets
+
+```bash
+dotnet user-secrets set Deploy:Password abc123
 ```
-dotnet user-secrets set Deploy:password abc123
-```
-Command will auto read project configuration value
-```
+
+### Publish using configuration
+
+```bash
 dotnet deploy publish
 ```
 
+The tool will automatically read values from configuration and user-secrets.
+
+---
+
 ## Commands
+
 ### publish
-```
+
+Publishes the project to a remote host.
+
+```bash
 dotnet deploy publish
 ```
 
 ### info
-```
+
+Displays current deployment configuration.
+
+```bash
 dotnet deploy info
 ```
 
 ### systemd
-install systemd service
-```
+
+Manage systemd service on the remote host.
+
+Install:
+
+```bash
 dotnet deploy systemd install
 ```
-uninstall systemd service
-```
+
+Uninstall:
+
+```bash
 dotnet deploy systemd uninstall
 ```
-restart systemd service
-```
+
+Restart:
+
+```bash
 dotnet deploy systemd restart
 ```
-get systemd service status
-```
+
+Status:
+
+```bash
 dotnet deploy systemd status
 ```
 
+---
+
 ## FAQ
-## Directory contains multi project
-```
+
+### Directory contains multiple projects
+
+Specify the project directory:
+
+```bash
 dotnet deploy publish --project ./src/my_project
 ```
 
-## Project contains multi csproj files
-```
+### Directory contains multiple csproj files
+
+Specify the exact project file:
+
+```bash
 dotnet deploy publish --project ./src/my_project/my_project.csproj
 ```
 
-## Support OS
-Current version test on ubuntu,there is no guarantee that all linux distributions will work well,more case will be test on future
-## Default deploy resource path on remote host
-Project publish file: ```/var/dotnet-apps/[project_name]```
+### Supported Operating Systems
 
-Service file: ```/etc/systemd/system/[project_name].service```
+The current version has been tested on Ubuntu. Other Linux distributions may work but are not yet fully validated.
 
-## Command document
-all command use ```-h``` can see command description
+### Default resource paths on remote host
+
+Published files:
+
 ```
+/var/dotnet-apps/[project_name]
+```
+
+Systemd service file:
+
+```
+/etc/systemd/system/[project_name].service
+```
+
+---
+
+## Command Reference
+
+Use `-h` on any command to view its description.
+
+Example:
+
+```bash
 dotnet deploy publish -h
 ```
+
 ```
 Description:
   Publish project to remote host
@@ -106,14 +177,14 @@ Usage:
   DotnetDeploy publish [options]
 
 Options:
-  --host          Target host name or domain
-  --username      SSH username
-  --password      SSH password
-  --private-key   SSH private key
-  --project       Project path
-  --include-files  Copy the specified project file or directory to output directory
-  --all-hosts      Publish all hosts
-  --before-command  Run command before dotnet publish
-  --after-command   Run command after dotnet publish
-  -?, -h, --help  Show help and usage information
+  --host            Target host name or domain
+  --username        SSH username
+  --password        SSH password
+  --private-key     SSH private key
+  --project         Project path
+  --include-files   Copy the specified file or directory into the output directory
+  --all-hosts       Publish to all configured hosts
+  --before-command  Command to run before dotnet publish
+  --after-command   Command to run after dotnet publish
+  -?, -h, --help    Show help and usage information
 ```
