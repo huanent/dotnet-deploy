@@ -1,6 +1,5 @@
 <Solution>
-  <Folder Name="/samples/">
-    <Project Path="samples/AspnetSample/AspnetSample.csproj" />
-  </Folder>
+  <Project Path="test/DotnetDeployTest.csproj" />
+  <Project Path="sample/AspnetSample.csproj" />
   <Project Path="src/DotnetDeploy.csproj" />
 </Solution>

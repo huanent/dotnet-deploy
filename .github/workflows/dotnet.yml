@@ -6,7 +6,7 @@ name: .NET
 on:
   push:
     tags: 
-      - 'v*'
+      - main
 jobs:
   build:
 
@@ -23,4 +23,4 @@ jobs:
     - name: Pack
       run: dotnet pack --no-restore ./src --output ./output
     - name: Publish
-      run: dotnet nuget push ./output/*.nupkg --api-key ${{ secrets.nuget_key }} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push ./output/*.nupkg --skip-duplicate --api-key ${{ secrets.nuget_key }} --source https://api.nuget.org/v3/index.json
