@@ -4,7 +4,7 @@
     "debug": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "commandLineArgs": "publish --project ../samples/AspnetSample",
+      "commandLineArgs": "publish --project ../sample",
       "workingDirectory": "./"
     }
   }

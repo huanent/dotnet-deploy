@@ -10,7 +10,7 @@ public static class Executor
            program,
            args,
            workingDirectory: cwd,
-           cancellationToken: token
+           ct: token
        );
 
         if (!string.IsNullOrWhiteSpace(error)) throw new Exception(error);
@@ -24,7 +24,7 @@ public static class Executor
             await SimpleExec.Command.RunAsync(
               "cmd.exe",
               ["/C", command],
-              cancellationToken: token
+              ct: token
             );
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -32,7 +32,7 @@ public static class Executor
             await SimpleExec.Command.RunAsync(
              "zsh",
              ["-c", command],
-             cancellationToken: token
+             ct: token
            );
         }
         else
@@ -40,7 +40,7 @@ public static class Executor
             await SimpleExec.Command.RunAsync(
              "bash",
              ["-c", command],
-             cancellationToken: token
+             ct: token
            );
         }
     }

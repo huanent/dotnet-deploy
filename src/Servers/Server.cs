@@ -1,5 +1,4 @@
 using DotnetDeploy.Projects;
-using Microsoft.Extensions.Logging;
 using Tmds.Ssh;
 
 namespace DotnetDeploy.Servers;
@@ -8,7 +7,7 @@ public class Server(HostDeployOptions options) : IDisposable
 {
     private string? arch;
     private ServerConnection connection;
-    public static string RootDirectory => "/var/dotnet-apps";
+    public static string RootDirectory => "/opt/dotnet_apps";
     public ServerConnection Connection => connection ?? throw new Exception("Server not Initialized");
     public string Arch => arch ?? throw new Exception("Server not Initialized");
     public string Username => options.UserName;
