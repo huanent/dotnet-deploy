@@ -37,17 +37,16 @@ public class Project : IDisposable
 
     private async Task BindOptionsAsync(CancellationToken token)
     {
-        var userSecretId = await Executor.RunAsync(
-            "dotnet",
-            ["msbuild", CsprojFile, "-getProperty:UserSecretsId"],
-            RootDirectory,
-            token
-        );
-
         var builder = new ConfigurationBuilder();
         builder.SetBasePath(RootDirectory);
         builder.AddJsonFile("appsettings.json", true, true);
         builder.AddJsonFile("appsettings.deploy.json", true, true);
+        var userSecretId = await Executor.RunAsync(
+           "dotnet",
+           ["msbuild", CsprojFile, "-getProperty:UserSecretsId"],
+           RootDirectory,
+           token
+       );
         if (!string.IsNullOrWhiteSpace(userSecretId)) builder.AddUserSecrets(userSecretId, true);
         var configurationRoot = builder.Build();
         var deploy = configurationRoot.GetSection("Deploy");
@@ -87,9 +86,9 @@ public class Project : IDisposable
             return path;
         }
 
-        if (System.IO.Directory.Exists(path))
+        if (Directory.Exists(path))
         {
-            var files = System.IO.Directory.GetFiles(path, "*.csproj", SearchOption.AllDirectories);
+            var files = Directory.GetFiles(path, "*.csproj", SearchOption.AllDirectories);
 
             if (files.Length == 0)
             {
@@ -110,6 +109,7 @@ public class Project : IDisposable
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
         if (Directory.Exists(WorkDirectory))
         {
             Directory.Delete(WorkDirectory, true);

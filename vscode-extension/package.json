@@ -1,0 +1,61 @@
+{
+  "name": "dotnet-deploy",
+  "displayName": "Dotnet Deploy",
+  "description": "One click deploy dotnet project",
+  "version": "0.0.1",
+  "publisher": "huanent",
+  "icon": "resources/logo.png",
+  "repository": {
+    "url": "https://github.com/huanent/dotnet-deploy.git",
+    "type": "github"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/huanent/dotnet-deploy",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dotnet-deploy.publish",
+        "title": "Deploy to Server",
+        "icon": "$(play)",
+        "category": "dotnet-deploy"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "dotnet-deploy.publish",
+          "when": "explorerResourceIsFolder || dotnetDeploy.hasCsproj",
+          "group": "dotnet-deploy"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.100.0",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.7.1",
+    "eslint": "^9.25.1",
+    "typescript": "^5.8.3"
+  }
+}
