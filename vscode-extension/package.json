@@ -2,7 +2,7 @@
   "name": "dotnet-deploy",
   "displayName": "Dotnet Deploy",
   "description": "One click deploy dotnet project",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "huanent",
   "icon": "resources/logo.png",
   "repository": {
