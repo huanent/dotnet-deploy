@@ -23,7 +23,7 @@
       {
         "command": "dotnet-deploy.publish",
         "title": "Deploy to Server",
-        "icon": "$(play)",
+        "icon": "$(cloud-upload)",
         "category": "dotnet-deploy"
       }
     ],
@@ -31,8 +31,15 @@
       "explorer/context": [
         {
           "command": "dotnet-deploy.publish",
-          "when": "explorerResourceIsFolder || dotnetDeploy.hasCsproj",
+          "when": "resourceExtname == .csproj",
           "group": "dotnet-deploy"
+        }
+      ],
+      "editor/title": [
+        {
+          "when": "resourceExtname == .csproj",
+          "command": "dotnet-deploy.publish",
+          "group": "navigation"
         }
       ]
     }
