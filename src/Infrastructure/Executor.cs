@@ -24,7 +24,8 @@ public static class Executor
             await SimpleExec.Command.RunAsync(
               "cmd.exe",
               ["/C", command],
-              ct: token
+              ct: token,
+              workingDirectory: cwd
             );
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -32,7 +33,8 @@ public static class Executor
             await SimpleExec.Command.RunAsync(
              "zsh",
              ["-c", command],
-             ct: token
+             ct: token,
+             workingDirectory: cwd
            );
         }
         else
@@ -40,7 +42,8 @@ public static class Executor
             await SimpleExec.Command.RunAsync(
              "bash",
              ["-c", command],
-             ct: token
+             ct: token,
+             workingDirectory: cwd
            );
         }
     }
