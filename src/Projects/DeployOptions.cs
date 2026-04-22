@@ -9,14 +9,9 @@ public class DeployOptions : HostDeployOptions
 {
     public Dictionary<string, HostDeployOptions>? Hosts { get; set; }
 
-    public HostDeployOptions Get(string host, ParseResult parseResult)
+    public HostDeployOptions Get(string? host, ParseResult parseResult)
     {
-        HostDeployOptions? subHost = null;
-
-        if (Hosts != null)
-        {
-            subHost = Hosts?.FirstOrDefault(f => f.Value?.Host == host || f.Key == host).Value;
-        }
+        HostDeployOptions? subHost = Hosts?.FirstOrDefault(f => f.Value?.Host == host || f.Key == host).Value;
 
         var result = new HostDeployOptions
         {

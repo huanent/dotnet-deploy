@@ -45,20 +45,33 @@ public abstract class BaseCommand : Command
         var projectPath = parseResult.GetValue<string>(Constants.PROJECT_PARAMETER);
         using var project = new Project(projectPath);
         await project.InitializeAsync(token);
-
+        var allHosts = parseResult.GetValue<bool?>(Constants.ALL_HOSTS_PARAMETER) ?? false;
+        var hosts = project.Options.Hosts;
         var defaultHost = parseResult.GetValue<string>(Constants.HOST_PARAMETER) ?? project.Options.Host;
-        if (string.IsNullOrWhiteSpace(defaultHost)) throw new Exception("Host parameter can not be empty");
         var defaultOptions = project.Options.Get(defaultHost, parseResult);
-        await ExecuteAsync(defaultOptions, project, token);
+        var defaultHostIsEmpty = string.IsNullOrWhiteSpace(defaultHost);
 
-        if ((parseResult.GetValue<bool?>(Constants.ALL_HOSTS_PARAMETER) ?? false) && project.Options.Hosts != null)
+        if (defaultHostIsEmpty)
         {
-            foreach (var item in project.Options.Hosts)
+            if (hosts == null || hosts.Count == 0) throw new Exception("Host parameter can not be empty");
+        }
+        else
+        {
+            await ExecuteAsync(defaultOptions, project, token);
+        }
+
+        if (allHosts || defaultHostIsEmpty)
+        {
+            if (hosts != null)
             {
-                var options = project.Options.Get(item.Key, parseResult);
-                if (options.Host == defaultOptions.Host) continue;
-                await ExecuteAsync(options, project, token);
+                foreach (var item in hosts)
+                {
+                    var options = project.Options.Get(item.Key, parseResult);
+                    if (options.Host == defaultOptions.Host) continue;
+                    await ExecuteAsync(options, project, token);
+                }
             }
+
         }
     }
 
