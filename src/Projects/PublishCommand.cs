@@ -18,12 +18,12 @@ public class PublishCommand : BaseCommand, ICommand
             Description = "Copy the specified project file or directory to output directory",
         });
 
-        Options.Add(new Option<bool?>(Constants.BEFORE_COMMAND_PARAMETER)
+        Options.Add(new Option<string?>(Constants.BEFORE_COMMAND_PARAMETER)
         {
             Description = "Run command before dotnet publish",
         });
 
-        Options.Add(new Option<bool?>(Constants.AFTER_COMMAND_PARAMETER)
+        Options.Add(new Option<string?>(Constants.AFTER_COMMAND_PARAMETER)
         {
             Description = "Run command after dotnet publish",
         });
@@ -144,6 +144,21 @@ public class PublishCommand : BaseCommand, ICommand
             {
                 var targetPath = Path.Combine(publishPath, path);
                 CopyFile(sourcePath, targetPath);
+                continue;
+            }
+
+            if (Directory.Exists(sourcePath))
+            {
+                var directoryFiles = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
+
+                foreach (var file in directoryFiles)
+                {
+                    var relativePath = Path.GetRelativePath(project.RootDirectory, file);
+                    var targetPath = Path.Combine(publishPath, relativePath);
+                    CopyFile(file, targetPath);
+                }
+
+                continue;
             }
 
             var files = Directory.GetFiles(project.RootDirectory, path, SearchOption.AllDirectories);

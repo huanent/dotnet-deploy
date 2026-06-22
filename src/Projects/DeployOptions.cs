@@ -12,6 +12,10 @@ public class DeployOptions : HostDeployOptions
     public HostDeployOptions Get(string? host, ParseResult parseResult)
     {
         HostDeployOptions? subHost = Hosts?.FirstOrDefault(f => f.Value?.Host == host || f.Key == host).Value;
+        var includeFiles = parseResult.GetValue<string[]?>(Constants.INCLUDE_FILES_PARAMETER);
+        // For array options, System.CommandLine can yield an empty array when the option is omitted.
+        // Treat empty as not provided so appsettings values can still flow through.
+        var includeFilesFromCli = includeFiles is { Length: > 0 } ? includeFiles : null;
 
         var result = new HostDeployOptions
         {
@@ -19,7 +23,7 @@ public class DeployOptions : HostDeployOptions
             Password = parseResult.GetValue<string>(Constants.PASSWORD_PARAMETER) ?? subHost?.Password ?? Password,
             PrivateKey = parseResult.GetValue<string>(Constants.PRIVATE_KEY_PARAMETER) ?? subHost?.PrivateKey ?? PrivateKey,
             UserName = parseResult.GetValue<string>(Constants.USERNAME_PARAMETER) ?? subHost?.UserName ?? UserName ?? "root",
-            IncludeFiles = parseResult.GetValue<string[]?>(Constants.INCLUDE_FILES_PARAMETER) ?? subHost?.IncludeFiles ?? IncludeFiles,
+            IncludeFiles = includeFilesFromCli ?? subHost?.IncludeFiles ?? IncludeFiles,
             BeforeCommand = parseResult.GetValue<string>(Constants.BEFORE_COMMAND_PARAMETER) ?? subHost?.BeforeCommand ?? BeforeCommand,
             AfterCommand = parseResult.GetValue<string>(Constants.AFTER_COMMAND_PARAMETER) ?? subHost?.AfterCommand ?? AfterCommand,
             Systemd = subHost?.Systemd ?? Systemd
