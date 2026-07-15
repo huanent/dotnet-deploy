@@ -2,7 +2,7 @@
   "name": "dotnet-deploy",
   "displayName": "Dotnet Deploy",
   "description": "One click deploy dotnet project",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "publisher": "huanent",
   "icon": "resources/logo.png",
   "repository": {
@@ -16,6 +16,9 @@
   },
   "categories": [
     "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -31,15 +34,8 @@
       "explorer/context": [
         {
           "command": "dotnet-deploy.publish",
-          "when": "resourceExtname == .csproj",
+          "when": "explorerResourceIsFolder && resourcePath in dotnet-deploy.projectFolders",
           "group": "dotnet-deploy"
-        }
-      ],
-      "editor/title": [
-        {
-          "when": "resourceExtname == .csproj",
-          "command": "dotnet-deploy.publish",
-          "group": "navigation"
         }
       ]
     }
@@ -48,8 +44,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
+    "pretest": "npm run compile",
     "test": "vscode-test",
     "publish": "vsce publish"
   },
@@ -57,12 +52,9 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@types/vscode": "^1.100.0",
-    "@typescript-eslint/eslint-plugin": "^8.31.1",
-    "@typescript-eslint/parser": "^8.31.1",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.7.1",
-    "eslint": "^9.25.1",
-    "typescript": "^5.8.3"
+    "typescript": "^7.0.2"
   }
 }
