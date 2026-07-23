@@ -2,7 +2,7 @@
   "name": "dotnet-deploy",
   "displayName": "Dotnet Deploy",
   "description": "One click deploy dotnet project",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "huanent",
   "icon": "resources/logo.png",
   "repository": {
@@ -35,7 +35,7 @@
         {
           "command": "dotnet-deploy.publish",
           "when": "explorerResourceIsFolder && resourcePath in dotnet-deploy.projectFolders",
-          "group": "dotnet-deploy"
+          "group": "3_workspace@5"
         }
       ]
     }
@@ -46,7 +46,8 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
     "test": "vscode-test",
-    "publish": "vsce publish"
+    "publish": "vsce publish",
+    "pack": "vsce pack"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
